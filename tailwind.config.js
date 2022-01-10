@@ -3,7 +3,7 @@ module.exports = {
   theme: {
     extend: {
       flex: {
-        "l-24": "0 0 6rem",
+        "l-32": "0 0 8rem",
       },
       fontFamily: {
         sans: ["overpass"],

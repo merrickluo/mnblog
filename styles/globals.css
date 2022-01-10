@@ -65,8 +65,7 @@ body {
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+  @apply underline underline-offset-8 decoration-1 decoration-primary hover:bg-background-alt;
 }
 
 * {

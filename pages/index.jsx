@@ -1,7 +1,19 @@
 import Head from "next/head";
 import Image from "next/image";
 
-export default function Home() {
+import PostList from "../components/post_list";
+
+import { getSortedPostsData } from "../lib/posts";
+
+export function getStaticProps() {
+  return {
+    props: {
+      posts: getSortedPostsData(),
+    },
+  };
+}
+
+export default function Home({ posts }) {
   return (
     <div className="w-full p-6 md:w-2/3 md:px-0 md:mx-auto xl:w-2/5">
       <Head>
@@ -21,7 +33,9 @@ export default function Home() {
         <p>A.I. writes here.</p>
       </header>
 
-      <main className="mb-24"></main>
+      <main className="mb-24">
+        <PostList posts={posts} />
+      </main>
 
       <footer className="w-full">
         <a
