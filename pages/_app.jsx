@@ -15,7 +15,7 @@ function MyApp({ Component, pageProps }) {
         <main>
           <Component {...pageProps} />
         </main>
-        <footer className="mt-8 w-full flex flex-row items-baseline">
+        <footer className="mt-16 w-full flex flex-row items-baseline">
           <span>Made with</span>
           <span className="px-2">
             <a href="https://orgmode.org">Org Mode</a>

@@ -24,7 +24,7 @@ export function getStaticProps({ params }) {
 export default function Category({ name, allPosts }) {
   return (
     <>
-      <h1 className="text-3xl font-bold mb-8">All Posts in Category: {name}</h1>
+      <h1 className="text-3xl font-bold mb-8">All posts in category: {name}</h1>
       <PostList posts={allPosts} />
     </>
   );
