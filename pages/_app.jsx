@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Image from "next/image";
 import BackHome from "../components/back_home";
 import "../styles/globals.css";
 
@@ -16,22 +15,20 @@ function MyApp({ Component, pageProps }) {
         <main>
           <Component {...pageProps} />
         </main>
-        <footer className="w-full">
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Powered by
-            <span className="w-6">
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                width={72}
-                height={16}
-              />
-            </span>
-          </a>
+        <footer className="mt-8 w-full flex flex-row items-baseline">
+          <span>Made with</span>
+          <span className="px-2">
+            <a href="https://orgmode.org">Org Mode</a>
+          </span>
+          <span>and</span>
+          <span className="px-2">
+            <a href="https://tailwindcss.com">TailwindCSS</a>
+          </span>
+          <span>and</span>
+          <span className="pl-2">
+            <a href="https://nextjs.org">Next.js</a>
+          </span>
+          <span>.</span>
         </footer>
       </div>
     </>
