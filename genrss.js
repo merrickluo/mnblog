@@ -53,4 +53,4 @@ getSortedPostsData().forEach((post) => {
   });
 });
 
-fs.writeFileSync("out/posts/feeds.xml", feed.rss2());
+fs.writeFileSync("out/posts/feed.xml", feed.rss2());

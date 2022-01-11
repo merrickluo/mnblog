@@ -37,7 +37,7 @@ Home.getHeader = () => {
         <Link href="/posts">
           <a className="text-xl ml-2">/Posts</a>
         </Link>
-        <Link href="/posts/feeds.xml">
+        <Link href="/posts/feed.xml">
           <a className="text-xl ml-4">/RSS</a>
         </Link>
       </div>
