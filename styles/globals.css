@@ -116,7 +116,8 @@ a:hover {
 
 /* purgecss ignore */
 blockquote {
-  background-image: url(/quote-left-solid.svg), url(/quote-right-solid.svg);
+  background-image: url(/icons/quote-left-solid.svg),
+    url(/icons/quote-right-solid.svg);
   background-position: top left, right bottom;
   background-repeat: no-repeat, no-repeat;
   background-size: 1em 1em, 1em 1em;
@@ -136,11 +137,11 @@ pre {
 
 /* purgecss ignore */
 .theme-toggle.light {
-  background: url(/sun-regular.svg) no-repeat;
+  background: url(/icons/sun-regular.svg) no-repeat;
   filter: none;
 }
 
 .theme-toggle {
-  background: url(/moon-regular.svg) no-repeat;
+  background: url(/icons/moon-regular.svg) no-repeat;
   filter: invert(1);
 }
