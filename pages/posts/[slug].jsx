@@ -16,9 +16,9 @@ export function getStaticPaths() {
   };
 }
 
-export async function getStaticProps({ params }) {
+export function getStaticProps({ params }) {
   return {
-    props: { postData: await getPostData(params.slug) },
+    props: { postData: getPostData(params.slug) },
   };
 }
 
