@@ -1,0 +1,84 @@
+---
+title: Speedup aur Package Install by 1000%
+author: A.I.
+categories: archlinux
+language: en
+date: 2020-04-30
+---
+<p>
+And&#x2026; of course this is a click-bait title, This will only speedup the compress time when packaging the package, not the whole build time 🙂️.
+</p>
+
+<p>
+One night in a peaceful Telegram group, a member starts complaining about aur packages install is too slow, and the <code>xz</code> process is only consuming one core. This leads to a meaningful discussion about how aur works and how to speed up the build, but I&rsquo;ll skip the first part by now, if you are interested, just follow <a href="https://wiki.archlinux.org/index.php/Makepkg">Makepkg</a> page on Arch Wiki.
+</p>
+
+<p>
+In short, aur is using makepkg to build the package and then install it with pacman, and there is a <code>/etc/makepkg.conf</code> we can tweak to make it works better.
+</p>
+
+<div id="outline-container-org4ff69f0" class="outline-2">
+<h2 id="org4ff69f0">zstd</h2>
+<div class="outline-text-2" id="text-org4ff69f0">
+<p>
+Another thing pop up in the discussion is <a href="https://github.com/facebook/zstd">zstd</a>, pacman <a href="https://www.archlinux.org/news/now-using-zstandard-instead-of-xz-for-package-compression/">switches to zstd from xz</a> on Friday, Dec 27, 2019, and claims it had a 1300% speedup. Since we can also use it in makepkg now, so it&rsquo;s a great time to switch.
+Just change one line in <code>/etc/makepkg.conf</code> to make it use zstd.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-diff"><span style="color: #aa2222; background-color: #C2D0E7;">-</span><span style="color: #99324B; background-color: #C2D0E7;"> PKGEXT='.pkg.tar.xz'</span>
++ PKGEXT='.pkg.tar.zst'
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org69f14f7" class="outline-2">
+<h2 id="org69f14f7">Multithread</h2>
+<div class="outline-text-2" id="text-org69f14f7">
+<p>
+The main complain is <code>xz</code> is only using one thread when there are 8/16 available. It&rsquo;s because the commands is not setup to use multi-thread by default. we can change it as documented in the <a href="https://wiki.archlinux.org/index.php/Makepkg">Makepkg</a> wiki page.
+This change can change zstd to use multi-thread (similar to <code>xz</code>).
+</p>
+
+<div class="org-src-container">
+<pre class="src src-diff"><span style="color: #aa2222; background-color: #C2D0E7;">-</span><span style="color: #99324B; background-color: #C2D0E7;"> COMPRESSZST=(zstd -c -z -q -)</span>
++ COMPRESSZST=(zstd -c -z -q - --threads=0)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org4080dea" class="outline-2">
+<h2 id="org4080dea">Use tmpfs</h2>
+<div class="outline-text-2" id="text-org4080dea">
+<p>
+If you have spare memory, you can also use it for speed up build. This is also documented in the <a href="https://wiki.archlinux.org/index.php/Makepkg">Makepkg</a> wiki page.
+Just uncomment one line in <code>/etc/makepkg.conf</code>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-diff"><span style="color: #aa2222; background-color: #C2D0E7;">-</span><span style="color: #99324B; background-color: #C2D0E7;"> #BUILDDIR=/tmp/makepkg</span>
++ BUILDDIR=/tmp/makepkg
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org3fe10d4" class="outline-2">
+<h2 id="org3fe10d4">Conclusion</h2>
+<div class="outline-text-2" id="text-org3fe10d4">
+<p>
+These steps should give you a 1000%+ speedup with aur package compressing(according to <a href="https://www.archlinux.org/news/now-using-zstandard-instead-of-xz-for-package-compression/">Robin Broda</a>). I have so many times starring at aur package install stuck at <code>Compressing Package</code> step, but never thought of how to optimize it.  #TodayILearned
+</p>
+</div>
+</div>
+
+<div id="outline-container-org5c31db7" class="outline-2">
+<h2 id="org5c31db7">History</h2>
+<div class="outline-text-2" id="text-org5c31db7">
+<ul class="org-ul">
+<li>2020-04-30 add title explanation.</li>
+</ul>
+</div>
+</div>

@@ -1,0 +1,61 @@
+---
+title: Pipewire fixed my USB speaker
+author: A.I.
+categories: linux gentoo
+language: en
+date: 2021-09-13
+---
+<p>
+I only notice <a href="https://pipewire.org">PipeWire</a> from a <del>hot</del> <a href="https://news.ycombinator.com/item?id=28490078">hacker news headline</a> this morning, the top comment mentioned that it can replace PulseAudio caught my attention.
+</p>
+
+<p>
+I had some struggles with PulseAudio before. The biggest one is that my USB speaker (Sony SRS-HG10) stopped working since I updated my kernel to 5.12. I have tried a lot of fixes, tweaking kernel configs, clean PulseAudio caches, etc. Finally, I gave up and wore a headphone instead.
+</p>
+
+<p>
+After reading the <a href="https://wiki.archlinux.org/title/PipeWire">ArchWiki page</a> and <a href="https://wiki.gentoo.org/wiki/PipeWire">Gentoo Wiki page</a> about PipeWire I find it&rsquo;s quite easy to replace PulseAudio with it.
+</p>
+
+<ul class="org-ul">
+<li>Stop PulseAudio from auto spawning.
+Edit <code>/etc/pulse/client.conf</code> and un-comment line <code>autospawn = no</code></li>
+
+<li><p>
+start PipeWire when X starts.
+It&rsquo;s possible to add it to any X start script like <code>.xinirc</code> or <code>.xprofile</code>, I did it in my <code>i3/config</code>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #5d86b6; font-weight: bold;">exec</span> <span style="color: #97365B;">--no-startup-id</span> pipewire
+</pre>
+</div></li>
+</ul>
+
+<p>
+That&rsquo;s it. I restarted i3, opened up a Youtube video. BOOOOOM, everything works.
+</p>
+
+<p>
+Just to be sure.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #5d86b6; font-weight: bold;">ps</span> <span style="color: #97365B;">-aux</span> <span style="color: #3B6EA8;">|</span> <span style="color: #5d86b6; font-weight: bold;">grep</span> pulse
+<span style="color: #8b94a5;"># </span><span style="color: #8b94a5;">make</span><span style="color: #8b94a5;"> sure no PulseAudio process running</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #5d86b6; font-weight: bold;">pactl</span> info <span style="color: #3B6EA8;">|</span> <span style="color: #5d86b6; font-weight: bold;">grep</span> <span style="color: #4F894C;">"Server Name"</span>
+<span style="color: #8b94a5;"># : Server Name: PulseAudio (on PipeWire 0.3.30)</span>
+</pre>
+</div>
+
+<p>
+Open <code>pavucontrol</code> and switch to USB speaker, it works too, congratulations (to me)!
+</p>
+
+<p>
+There is also <a href="https://bugs.gentoo.org/744622">a ticket</a> in Gentoo bug tracker discussing how to avoid installing PulseAudio entirely. I&rsquo;m looking forward to it.
+</p>

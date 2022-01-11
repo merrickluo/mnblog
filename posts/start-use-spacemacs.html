@@ -1,0 +1,232 @@
+---
+title: 开始使用 Spacemacs
+author: A.I.
+categories: emacs
+language: en
+date: 2015-12-12
+---
+<p>
+虽说上一篇 Blog 已经是在很久之前，但是上篇刚说了不爱用 vim 的快捷键，现在就开始用 spacemacs 貌似有些奇怪=。=
+</p>
+
+<p>
+我为什么开始使用 vim 的 keybinding 呢，说来话长，一切都要从坑爹的 Xcode 说起&#x2026;（省略对 Xcode 的 1w 字吐槽）总之因为 Xcode 无法支持 Emacs 的 keybinding（别说 Karabiner，这玩意儿影响太多东西），然后自带的 keybinding 效率实在太低，于是我不得不开始使用 XVim，然后在背叛 Emacs 的道路上越走越远（强力推荐 Chrome 的插件 cVim）。
+</p>
+
+<p>
+但是我不得不说，spacemacs 确实相当的好用，之前也有试过 oh-my-emacs 等等配置，然后自己也乱七八糟配过一些，都谈不上好用，而且还有一些相当麻烦的问题，虽说 spacemacs 问题也不不少，好在最后都找到了解决方案，下面就来记录一下配置时遇到的一些小问题。
+</p>
+
+<div id="outline-container-org4543a8a" class="outline-2">
+<h2 id="org4543a8a">安装 spacemacs</h2>
+<div class="outline-text-2" id="text-org4543a8a">
+<p>
+参见[官方文档](<a href="https://github.com/syl20bnr/spacemacs">https://github.com/syl20bnr/spacemacs</a>)，就不再赘述
+</p>
+
+<p>
+装好之后，打开 Emacs，
+</p>
+
+<p>
+<code>find-file ~/.spacemacs</code>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org1583d79" class="outline-2">
+<h2 id="org1583d79">Emacs behind proxy</h2>
+<div class="outline-text-2" id="text-org1583d79">
+<p>
+要想正常使用软件，第一件事就是配好代理，Emacs 里面的包管理，shell，都是需要代理的，所以第一步就是要配好代理
+</p>
+
+<p>
+在 <code>dotspacemacs/user-init()</code> 中
+</p>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">setq</span> <span style="color: #842879;">url-proxy-services</span>
+      <span style="color: #3B6EA8;">'</span><span style="color: #97365B;">(</span><span style="color: #4F894C;">(</span><span style="color: #4F894C;">"no_proxy"</span> . <span style="color: #4F894C;">"^</span><span style="color: #3B6EA8; font-weight: bold;">\\</span><span style="color: #3B6EA8; font-weight: bold;">(</span><span style="color: #4F894C;">localhost</span><span style="color: #3B6EA8; font-weight: bold;">\\</span><span style="color: #3B6EA8; font-weight: bold;">|</span><span style="color: #4F894C;">10.*</span><span style="color: #3B6EA8; font-weight: bold;">\\</span><span style="color: #3B6EA8; font-weight: bold;">)</span><span style="color: #4F894C;">"</span><span style="color: #4F894C;">)</span>
+        <span style="color: #4F894C;">(</span><span style="color: #4F894C;">"http"</span> . <span style="color: #4F894C;">"proxy_host:port"</span><span style="color: #4F894C;">)</span>
+        <span style="color: #4F894C;">(</span><span style="color: #4F894C;">"https"</span> . <span style="color: #4F894C;">"proxy_host:port"</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+
+<p>
+C-x，C-e and you are good to go.
+这里需要一个 http 的代理，如果用 shadowsocks 转一下就好。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org712aa22" class="outline-2">
+<h2 id="org712aa22">Fonts</h2>
+<div class="outline-text-2" id="text-org712aa22">
+<p>
+字体不对简直不想写代码，所以先配好字体
+</p>
+
+<p>
+英文字体
+</p>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">setq-default</span> dotspacemacs-default-font <span style="color: #3B6EA8;">'</span><span style="color: #97365B;">(</span><span style="color: #4F894C;">"Essential PragmataPro"</span>
+                                          <span style="color: #29838D;">:size</span> <span style="color: #97365B; font-weight: bold;">14</span>
+                                          <span style="color: #29838D;">:weight</span> normal
+                                          <span style="color: #29838D;">:width</span> normal
+                                          <span style="color: #29838D;">:powerline-scale</span> <span style="color: #97365B; font-weight: bold;">1.1</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+
+<p>
+中文字体
+</p>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">dolist</span> <span style="color: #97365B;">(</span>charset <span style="color: #3B6EA8;">'</span><span style="color: #4F894C;">(</span>kana han symbol cjk-misc bopomofo<span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span>
+  <span style="color: #97365B;">(</span><span style="color: #97365B;">set-fontset-font</span> <span style="color: #4F894C;">(</span><span style="color: #97365B;">frame-parameter</span> nil <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">font</span><span style="color: #4F894C;">)</span>
+                    charset <span style="color: #4F894C;">(</span><span style="color: #97365B;">font-spec</span> <span style="color: #29838D;">:family</span> <span style="color: #4F894C;">"Source Han Sans SC"</span>
+                                       <span style="color: #29838D;">:size</span> <span style="color: #97365B; font-weight: bold;">13</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org5acce89" class="outline-2">
+<h2 id="org5acce89">Fish in Emacs</h2>
+<div class="outline-text-2" id="text-org5acce89">
+<p>
+接下来是比较麻烦的部分，至于为什么要在 Emacs 中用 Fish，没办法，Emacs 党就是喜欢 one to rule them all。
+</p>
+
+<p>
+首先安装 spacemacs 提供的 shell layer 并配置一下默认 shell
+</p>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #29838D;">shell</span> <span style="color: #29838D;">:variables</span>
+       shell-default-term-shell <span style="color: #4F894C;">"/usr/local/bin/fish"</span>
+       shell-default-height <span style="color: #97365B; font-weight: bold;">30</span>
+       shell-default-position <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">bottom</span><span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+
+<p>
+然后打开 ansi-term，你会发现几个问题：
+</p>
+
+<ol class="org-ol">
+<li>prompt 下面会多出一个回车符号，在 <code>dotspacemacs/user-init()</code> 里加入</li>
+</ol>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #29838D;">add-hook</span> <span style="color: #3B6EA8;">'</span><span style="color: #842879;">term-mode-hook</span>
+          <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">lambda</span> <span style="color: #4F894C;">()</span>
+            <span style="color: #4F894C;">(</span><span style="color: #29838D;">toggle-truncate-lines</span><span style="color: #4F894C;">)</span>
+            <span style="color: #4F894C;">(</span><span style="color: #97365B;">make-local-variable</span> <span style="color: #3B6EA8;">'</span><span style="color: #842879;">transient-mark-mode</span><span style="color: #4F894C;">)</span>
+            <span style="color: #4F894C;">(</span><span style="color: #3B6EA8;">setq</span> <span style="color: #842879;">transient-mark-mode</span> nil<span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+
+<ol class="org-ol">
+<li><p>
+prompt title 显示问题
+</p>
+
+<p>
+<code>find-file ~/.config/fish/config.fish</code>
+</p></li>
+</ol>
+
+<p>
+加上
+</p>
+
+<div class="org-src-container">
+<pre class="src src-fish"><span style="color: #3B6EA8;">function</span> <span style="color: #29838D;">fish_title</span>
+    <span style="color: #3B6EA8;">true</span>
+<span style="color: #3B6EA8;">end</span>
+</pre>
+</div>
+
+<ol class="org-ol">
+<li>fish 的自动提示出现时，会显示一个 4m 并换行，同样在 <code>dotspacemacs/user-init()</code> 中</li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">setq</span> <span style="color: #842879;">system-uses-terminfo</span> nil<span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+
+<p>
+暂且到另一个 terminal 中，如果 emacs 是用 Homebrew 安装的，执行以下命令
+</p>
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #5d86b6; font-weight: bold;">tic</span> <span style="color: #97365B;">-o</span> ~/.terminfo /usr/local/share/emacs/<span style="color: #97365B; font-weight: bold;">24.5</span>/etc/e/eterm-color.ti
+</pre>
+</div>
+
+<p>
+其他安装方法，请自行找到类似目录
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgeb9169f" class="outline-2">
+<h2 id="orgeb9169f">kotlin-mode</h2>
+<div class="outline-text-2" id="text-orgeb9169f">
+<p>
+目前 kotlin 官方并没有支持 Emacs，只在 github 上搜到了两个 repo，[这个]()以及[这个]()，目前没有发现有什么区别。
+</p>
+
+<p>
+参照 spacemacs 自定义 layer 的方法并使用以上两个中任意一个即可获得 kotlin 代码的语法高亮显示。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org13e9492" class="outline-2">
+<h2 id="org13e9492">magit</h2>
+<div class="outline-text-2" id="text-org13e9492">
+<p>
+magit 的安装非常简单，安装 spacemacs 自带的 git layer 即可，唯一的问题是文档中提到的默认将 magit-status 的 buffer 打开全屏的设置方法失效了，经过一番查询后，现在需要一个第三方的 extesion 才能实现。
+</p>
+
+<p>
+这个在.spacemacs 中搜索一下加在对应位置即可
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">setq</span> dotspacemacs-additional-packages<span style="color: #3B6EA8;">'</span><span style="color: #97365B;">(</span>fullframe<span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+
+<p>
+<code>dotspacemacs/user-config()</code> 中
+</p>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span>fullframe magit-status magit-mode-quit-window<span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+
+<p>
+重新同步 packages 即可。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org27a745b" class="outline-2">
+<h2 id="org27a745b">!TODO</h2>
+<div class="outline-text-2" id="text-org27a745b">
+<ol class="org-ol">
+<li>补充链接</li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org3c4819a" class="outline-2">
+<h2 id="org3c4819a">History</h2>
+<div class="outline-text-2" id="text-org3c4819a">
+<p>
+2015.12.12 initial version
+2015.12.13 kotlin-mode 和 magit
+</p>
+</div>
+</div>

@@ -1,0 +1,66 @@
+---
+title: 博客主题更新
+author: A.I.
+categories: life blog
+language: zh
+date: 2021-10-05
+---
+<p>
+最近的几篇博客我都在尝试使用英文写，其一是因为大部分的工作、非工作文档需要使用英文编写，其二是因为编程相关的术语较多，而我一向不喜欢这些术语的中文翻译。所以权当练习（？）。
+</p>
+
+<p>
+之前为了这个还特意把博客分开了中文页面和英文页面，其实是瞎用了 Hugo 的“翻译”功能，并不是非常合适，所以决定更新一下主题，顺便改几个 Bug(?)。
+</p>
+
+<p>
+博客主题 Repo: <a href="https://github.com/merrickluo/hugo-tailwind-journal">https://github.com/merrickluo/hugo-tailwind-journal</a>
+</p>
+
+<div id="outline-container-org2920d51" class="outline-2">
+<h2 id="org2920d51">中英文 tag</h2>
+<div class="outline-text-2" id="text-org2920d51">
+<p>
+虽然自己的英文写作水平比较低，不过还是希望坚持一下多写一点。由于不再使用 Hugo 的翻译功能，所以给中英文的博客分别打上了标签。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org1d5d516" class="outline-2">
+<h2 id="org1d5d516">pangu.js</h2>
+<div class="outline-text-2" id="text-org1d5d516">
+<p>
+我在 Emacs 里一直在使用 <a href="https://github.com/coldnew/pangu-spacing">pangu-spacing</a>， 这次给博客也加上了 <a href="https://github.com/vinta/pangu.js/">pangu.js</a>。
+</p>
+
+<p>
+不过感觉可能作用有限了，由于在 Org-mode 里不中英文不加上空格，spell-check 会变得相当混乱，所以我现在都把 <code>pangu-spacing-real-insert-separtor</code> 又打开了，以后的博客内容应该都会自带空格。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga535e6e" class="outline-2">
+<h2 id="orga535e6e">no-script</h2>
+<div class="outline-text-2" id="text-orga535e6e">
+<p>
+之前给博客主题添加了一个简单的 Light/Dark Mode 切换按钮，用到了几行 JavaScript，这次在偶然关掉浏览器 JavaScript 的情况下打开之后发现就定在 Dark Mode 了，狠狠的伤害了我自己的眼睛。并且右上角的切换按钮在没有 JavaScript 的情况下也毫无作用。
+</p>
+
+<p>
+更新后在没有 JavaScript 的情况下，会使用浏览器的 <code>prefers-color-scheme</code> 值设定 Light/Dark Mode，并不再显示切换按钮。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3b6634b" class="outline-2">
+<h2 id="org3b6634b"><span class="todo TODO">TODO</span> Live Section</h2>
+<div class="outline-text-2" id="text-org3b6634b">
+<p>
+下一步准备给博客增加一个 "Live Section"，大概目的是用来放新弄的 Literate Doom Emacs 配置，随时更新，并且发布出来也会让我给配置补充文档增加点动力，参考     <a href="https://tecosaur.github.io/emacs-config/config.html">tecosaur 的配置</a>。
+</p>
+
+<p>
+或许还有一些其他用处，比如用来更新自己的读书笔记？（说得好像会读书）。
+</p>
+</div>
+</div>

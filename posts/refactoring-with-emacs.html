@@ -1,0 +1,199 @@
+---
+title: 用 Emacs 进行代码重构
+author: A.I.
+categories: emacs
+language: zh
+date: 2018-08-04
+---
+<p>
+首先要解释一下这里提到的重构主要是指变量名、方法名的修改，并不涉及到任何代码优化的部分（Emacs can't help you with that ）。
+</p>
+
+<p>
+作为一名（前）Android 开发者，对于这部分基本是属于被 Intellj IDEA (
+Android Studio) 惯坏了，右键点点就帮你换好了，顺便还帮你提前检查了可能出现的编译错误。当然这也是受益于 Java 是个静态语言，所以当我的主要工作转移到
+Emacs 写 js（没错） 之后。虽然没办法用到这么方便的工具了，但是也让我学会了更加通用的办法，是好事（F91 语气）。
+</p>
+
+<div id="outline-container-org0b0c14d" class="outline-2">
+<h2 id="org0b0c14d">当前文件的“查找替换”： <a href="https://github.com/victorhge/iedit">iedit</a></h2>
+<div class="outline-text-2" id="text-org0b0c14d">
+<p>
+最常见的情况是当前编辑的文件中有需要修改的变量名，比如说一个 typo，由于自动补全工具的强大（比如说我在用的<a href="http://company-mode.github.io/">company-mode</a>），如果你写错一次，那么多半这个
+typo 基本就会到处都是了。
+</p>
+
+<p>
+最容易想到的办法是使用 <code>(replace-string)</code> 查找替换，不过这样的局限性也很强。一是不够直观，二是在手动输入查找替换字符串中难免再次出错导致需要再来一瓶。
+</p>
+
+<p>
+而使用 iedit ，只需要选中需要修改的字符串并执行 <code>(iedit-mode): C-;</code> ，当前
+Buffer 所有的相同字符串都会高亮：
+</p>
+
+
+<div id="org95fb48a" class="figure">
+<p><img src="https://assets.luois.me/refactoring-with-emacs/iedit-highlight.png" alt="iedit-highlight.png" />
+</p>
+</div>
+
+<p>
+这时候修改高亮的字符串，其他的字符串也会同步修改。
+</p>
+
+
+<div id="org3a8491b" class="figure">
+<p><img src="https://assets.luois.me/refactoring-with-emacs/iedit-changed.png" alt="iedit-changed.png" />
+</p>
+</div>
+
+<p>
+这个过程中随时都能看到全局的变化，也不容易再次犯错。
+</p>
+
+<p>
+如果你觉得这样还不够清晰，也可以使用下文提到的 ivy-occur + wgrep 的方式修改，将搜索的范围限定到当前文件即可。
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgcfa31c8" class="outline-2">
+<h2 id="orgcfa31c8">局部变量替换 <a href="http://www.gnu.org/software/emacs/manual/html_node/emacs/Narrowing.html">narrowing</a></h2>
+<div class="outline-text-2" id="text-orgcfa31c8">
+<p>
+有些时候需要替换的是一个函数内部局部变量的名字，但是其他函数里面也有同名的变量我不想修改，这时候只用 iedit 的话就有点麻烦了，不过 Emacs 内置的 narrow 功能就派上了用场，需要注意的是这个功能默认是被禁用了，因为新手如果不小心按到快捷键会不知道发生了什么。第一次使用时 Emacs 弹出警告按下 y 即可。
+</p>
+
+<p>
+简单来说， <code>narrow</code> 就是指限定当前编辑的区域，如果你按下 <code>M-x</code> 并输入
+narrow&lt;Tab&gt; 会看到自动补全的三个方法分别是：
+</p>
+
+<ol class="org-ol">
+<li><code>narrow-to-defun (C-x n d)</code></li>
+</ol>
+<p>
+这个方法一般只在 emacs-lisp-mode 有用，将当前编辑区域限定为当前的 <code>(defun ())</code> 区域。
+</p>
+
+<ol class="org-ol">
+<li><code>narrow-to-page (C-x n p)</code></li>
+</ol>
+<p>
+将当前编辑区域限定为当前的 page(?)，关于 Page 相关的定义我还没有完全理解，根据我的
+use case 基本跟 <code>widen</code> 的功能一致。
+</p>
+
+<ol class="org-ol">
+<li><code>narrow-to-region (C-x n n)</code></li>
+</ol>
+<p>
+这个是我最常用到的，先选定一个区域然后将编辑区域限定为选定的区域。
+</p>
+
+<p>
+当然还有恢复到完整显示的方法 <code>widen (C-x n w)</code> 。
+</p>
+
+<p>
+处于 narrow 状态时，不管你怎么修改当前区域的内容都不会影响到文件的其余部分，所以就愉快的用 iedit 改掉局部变量的名字吧。
+</p>
+</div>
+</div>
+
+<div id="outline-container-org0dc2dde" class="outline-2">
+<h2 id="org0dc2dde">项目的查找替换 <a href="https://github.com/bbatsov/projectile">projectile</a> &amp; <a href="https://github.com/abo-abo/swiper">ivy</a> &amp; <a href="https://github.com/mhayashi1120/Emacs-wgrep">wgrep</a></h2>
+<div class="outline-text-2" id="text-org0dc2dde">
+<p>
+最惨烈的情况当然是一个项目里多个文件里面都需要修改，（包括但不限于 leader 对你起的变量名不满意（x 等情况）。这里就需要一些额外的工具，包括和 ivy 。如果你还没用过
+projectile 的话，建议花一点时间熟悉。另外 ivy 并不是必须的，不过非常推荐。
+</p>
+
+<p>
+首先查找用 ivy 提供的 <code>counsel-rg</code> 配合 projectile
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">defun</span> <span style="color: #29838D;">projectile-smart-search</span><span style="color: #97365B;">()</span>
+  <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">interactive</span><span style="color: #97365B;">)</span>
+  <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">let</span> <span style="color: #4F894C;">(</span><span style="color: #842879;">(</span>text <span style="color: #3B6EA8;">(</span><span style="color: #97365B;">substring-no-properties</span> <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">or</span> <span style="color: #4F894C;">(</span><span style="color: #29838D;">thing-at-point</span> <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">symbol</span><span style="color: #4F894C;">)</span> <span style="color: #4F894C;">""</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span><span style="color: #4F894C;">)</span>
+    <span style="color: #4F894C;">(</span><span style="color: #3B6EA8;">if</span> <span style="color: #842879;">(</span><span style="color: #29838D;">projectile-project-p</span><span style="color: #842879;">)</span>
+        <span style="color: #842879;">(</span>counsel-rg text <span style="color: #3B6EA8;">(</span><span style="color: #842879;">projectile-project-root</span><span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span>
+      <span style="color: #842879;">(</span>counsel-rg text<span style="color: #842879;">)</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+
+<blockquote>
+<p>
+Tips: text 部分的作用是将光标位置所在的单词直接当成搜索字符串，不过这不重要。
+</p>
+</blockquote>
+
+
+<p>
+当搜索结果出现在 minibuffer 之后，执行 <code>(ivy-occur): C-x C-o</code> 将所有查找结果在另一个 buffer 显示。
+</p>
+
+
+<div id="org841b25e" class="figure">
+<p><img src="https://assets.luois.me/refactoring-with-emacs/ivy-occur.png" alt="ivy-occur.png" />
+</p>
+</div>
+
+<p>
+如图的情况，假定我现在需要将 struct <code>EmacsRime</code> 改名为 <code>ERime</code> , 而另一个类型
+<code>EmacsRimeCandidates</code> 不需要修改。我需要做的是将光标移动到 <code>EmacsRimeCandidates</code> 行执行
+<code>(ivy-occur-delete-candidate): C-d</code> ，保证剩下的都是需要修改的：
+</p>
+
+
+<div id="orgd11f022" class="figure">
+<p><img src="https://assets.luois.me/refactoring-with-emacs/ivy-occur-modified.png" alt="ivy-occur-modified.png" />
+</p>
+</div>
+
+<p>
+使用 <code>(ivy-wgrep-change-to-wgrep-mode): w</code> 切换到 <code>wgrep-mode</code> 使用 <code>iedit</code>
+完成修改。按下 <code>C-c C-c</code> 保存即可。
+</p>
+
+
+<div id="org7862576" class="figure">
+<p><img src="https://assets.luois.me/refactoring-with-emacs/ivy-occur-changed.png" alt="ivy-occur-changed.png" />
+</p>
+</div>
+
+<blockquote>
+<p>
+Tips: 使用 <code>C-x s</code> 可以一次性保存所有修改过的 buffer。
+</p>
+</blockquote>
+</div>
+</div>
+
+<div id="outline-container-org36c7d24" class="outline-2">
+<h2 id="org36c7d24">通用性</h2>
+<div class="outline-text-2" id="text-org36c7d24">
+<p>
+虽然这边举例都是用修改代码来说明，不过这并不意味着这些工具只能在编写代码时有用。比如我需要将本文中的 Emacs 全部替换为 Vim，我需要的操作仅仅是：
+</p>
+
+<ol class="org-ol">
+<li>移动光标到其中一个 Emacs</li>
+<li><code>C-;</code></li>
+<li><code>M-d</code></li>
+<li>Vim</li>
+<li><code>C-;</code></li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-org25565c8" class="outline-2">
+<h2 id="org25565c8">References</h2>
+<div class="outline-text-2" id="text-org25565c8">
+</div>
+<div id="outline-container-orga79bbf8" class="outline-3">
+<h3 id="orga79bbf8"><a href="https://oremacs.com/2015/01/27/my-refactoring-workflow/">https://oremacs.com/2015/01/27/my-refactoring-workflow/</a></h3>
+</div>
+</div>

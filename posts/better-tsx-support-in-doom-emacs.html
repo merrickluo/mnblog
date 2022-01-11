@@ -1,0 +1,241 @@
+---
+title: Better TSX support w/ Tree-sitter in Doom Emacs
+author: A.I.
+categories: emacs doom typescript
+language: en
+date: 2021-10-25
+---
+<p>
+I don&rsquo;t like TypeScript, but for <del>science/torturing myself</del>, I decided to try it in a small side project. Naturally, I need to set up the development environment for it in Emacs. Luckily it&rsquo;s pretty easy to do in Doom Emacs. All I need to do is to enable the <code>javascript</code> and <code>web</code> layer in <code>init.el</code>, but there is a catch (or this article won&rsquo;t exist).
+</p>
+
+<div id="outline-container-orgbf5563a" class="outline-2">
+<h2 id="orgbf5563a">TLDR;</h2>
+<div class="outline-text-2" id="text-orgbf5563a">
+<p>
+View <a href="#org6f798c0">The Final Result</a> or use <a href="https://bitbucket.org/mituharu/emacs-mac/src/master/">emacs-mac</a> (if you are using macOS).
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga64e25b" class="outline-2">
+<h2 id="orga64e25b">The catch</h2>
+<div class="outline-text-2" id="text-orga64e25b">
+<p>
+I have a desktop with Ryzen 3900X and a MacBook Pro 2019(I know, I&rsquo;m sorry). So this problem didn&rsquo;t occur to me until I opened the project on the Macbook Pro. Emacs <b>lags so much</b> when navigating in the <code>.tsx</code> files. And I remembered that a former colleague was complaining about this a couple of days ago, and I was like: &ldquo;It works for me.&rdquo;. It&rsquo;s not now, so I started digging.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org8053d82" class="outline-2">
+<h2 id="org8053d82">typescript-mode &amp; web-mode</h2>
+<div class="outline-text-2" id="text-org8053d82">
+<p>
+Doom Emacs uses a major mode derived from <code>web-mode</code> to handle <code>.tsx</code> files, because <code>typescript-mode</code> <a href="https://github.com/emacs-typescript/typescript.el/issues/4">does not support TSX</a>. I agree with their decision after I read part of the <code>web-mode</code> code, like <a href="https://github.com/fxbois/web-mode/blob/61f057a6baeba6b3595e412ba79b3080dca17dcc/web-mode.el#L8221">this function</a> handles the indentation. A <b>700+</b> lines code function is called just for I press enter in a <code>web-mode</code> buffer. <code>web-mode</code> is a great package and I understand that it has to supports soooo many template languages, but it&rsquo;s just too complicated.
+</p>
+
+<p>
+In the typescript-mode thread, someone mentioned using typescript-mode + Tree-sitter to handle <code>.tsx</code> files caught my attention. Since I was running Tree-sitter in my configuration for weeks, and it works pretty well. So I tried it.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org9f6754d" class="outline-2">
+<h2 id="org9f6754d">typescript-mode + Tree-sitter</h2>
+<div class="outline-text-2" id="text-org9f6754d">
+<p>
+I already configured Tree-sitter in my configuration, copied from a <a href="https://github.com/hlissner/doom-emacs/pull/5401">pending PR</a> from Doom Emacs.
+</p>
+
+<ul class="org-ul">
+<li>Update: there are <a href="https://github.com/hlissner/doom-emacs/pull/5401/files/eb54017ee5619ecaf9198d18c7fd4c7b7b90a8c5..b4cd659aa4d65c48e46fa7a6d5f6fd6d2c4d5364">another PR</a> working for better Tree-sitter integration to Doom.</li>
+</ul>
+
+<p>
+<code>packages.el</code>
+</p>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">package!</span> tree-sitter
+  <span style="color: #29838D;">:ignore</span> <span style="color: #97365B;">(</span><span style="color: #97365B;">null</span> <span style="color: #4F894C;">(</span><span style="color: #3B6EA8;">bound-and-true-p</span> <span style="color: #842879;">module-file-suffix</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+
+<span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">package!</span> tree-sitter-langs
+  <span style="color: #29838D;">:ignore</span> <span style="color: #97365B;">(</span><span style="color: #97365B;">null</span> <span style="color: #4F894C;">(</span><span style="color: #3B6EA8;">bound-and-true-p</span> <span style="color: #842879;">module-file-suffix</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+
+<p>
+<code>config.el</code>
+</p>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">use-package!</span> tree-sitter
+  <span style="color: #29838D;">:when</span> <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">bound-and-true-p</span> <span style="color: #842879;">module-file-suffix</span><span style="color: #97365B;">)</span>
+  <span style="color: #29838D;">:hook</span> <span style="color: #97365B;">(</span><span style="color: #29838D;">prog-mode</span> . <span style="color: #842879;">tree-sitter-mode</span><span style="color: #97365B;">)</span>
+  <span style="color: #29838D;">:hook</span> <span style="color: #97365B;">(</span>tree-sitter-after-on . <span style="color: #842879;">tree-sitter-hl-mode</span><span style="color: #97365B;">)</span>
+  <span style="color: #29838D;">:config</span>
+  <span style="color: #97365B;">(</span><span style="color: #97365B;">require</span> <span style="color: #3B6EA8;">'</span><span style="color: #97365B;">tree-sitter-langs</span><span style="color: #97365B;">)</span>
+  <span style="color: #97365B;">(</span><span style="color: #842879;">global-tree-sitter-mode</span><span style="color: #97365B;">)</span>
+  <span style="color: #97365B;">(</span><span style="color: #29838D;">add-hook</span> <span style="color: #3B6EA8;">'</span><span style="color: #842879;">tree-sitter-after-on-hook</span> <span style="color: #3B6EA8;">#'</span><span style="color: #842879;">tree-sitter-hl-mode</span><span style="color: #97365B;">)</span>
+  <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">defadvice!</span> doom-tree-sitter-fail-gracefully-a <span style="color: #4F894C;">(</span>orig-fn <span style="color: #9A7500;">&amp;rest</span> args<span style="color: #4F894C;">)</span>
+    <span style="color: #828b9b;">"Don't break with errors when current major mode lacks tree-sitter support."</span>
+    <span style="color: #29838D;">:around</span> <span style="color: #3B6EA8;">#'</span><span style="color: #842879;">tree-sitter-mode</span>
+    <span style="color: #4F894C;">(</span><span style="color: #3B6EA8;">condition-case</span> e
+        <span style="color: #842879;">(</span><span style="color: #97365B;">apply</span> orig-fn args<span style="color: #842879;">)</span>
+      <span style="color: #842879;">(</span><span style="color: #29838D;">error</span>
+       <span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">unless</span> <span style="color: #97365B;">(</span><span style="color: #29838D;">string-match-p</span> <span style="color: #4F894C;">(</span><span style="color: #97365B;">concat</span> <span style="color: #4F894C;">"^Cannot find shared library</span><span style="color: #3B6EA8; font-weight: bold;">\\</span><span style="color: #3B6EA8; font-weight: bold;">|</span><span style="color: #4F894C;">"</span>
+                                       <span style="color: #4F894C;">"^No language registered</span><span style="color: #3B6EA8; font-weight: bold;">\\</span><span style="color: #3B6EA8; font-weight: bold;">|</span><span style="color: #4F894C;">"</span>
+                                       <span style="color: #4F894C;">"cannot open shared object file"</span><span style="color: #4F894C;">)</span>
+                               <span style="color: #4F894C;">(</span><span style="color: #97365B;">error-message-string</span> e<span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span>
+         <span style="color: #97365B;">(</span><span style="color: #97365B;">signal</span> <span style="color: #4F894C;">(</span><span style="color: #97365B;">car</span> e<span style="color: #4F894C;">)</span> <span style="color: #4F894C;">(</span><span style="color: #29838D;">cadr</span> e<span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+
+<p>
+So I added the suggestion from the issue thread in <code>typescript-mode</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">use-package!</span> typescript-mode
+  <span style="color: #29838D;">:mode</span> <span style="color: #97365B;">(</span><span style="color: #4F894C;">"\\.tsx\\'"</span> . typescript-tsx-tree-sitter-mode<span style="color: #97365B;">)</span>
+  <span style="color: #29838D;">:config</span>
+  <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">setq</span> <span style="color: #842879;">typescript-indent-level</span> <span style="color: #97365B; font-weight: bold;">2</span><span style="color: #97365B;">)</span>
+  <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">define-derived-mode</span> <span style="color: #29838D;">typescript-tsx-tree-sitter-mode</span> typescript-mode <span style="color: #4F894C;">"TypeScript TSX"</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+
+<span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">after!</span> tree-sitter
+  <span style="color: #97365B;">(</span><span style="color: #29838D;">add-to-list</span> <span style="color: #3B6EA8;">'</span><span style="color: #842879;">tree-sitter-major-mode-language-alist</span> <span style="color: #3B6EA8;">'</span><span style="color: #4F894C;">(</span>typescript-tsx-tree-sitter-mode . tsx<span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+
+<p>
+And it works! JSX syntax highlighted, <code>lsp-mode</code> works, but(this is the last &ldquo;but&rdquo;; I promise.), since <code>typescript-mode</code> does not support JSX, it doesn&rsquo;t know how to indent the code, of course, you can still manually press <code>tab</code>, but that&rsquo;s not what we want from a &ldquo;smart&rdquo; editor, right?
+</p>
+</div>
+</div>
+
+<div id="outline-container-org4530cf0" class="outline-2">
+<h2 id="org4530cf0">Indentation: a failed try</h2>
+<div class="outline-text-2" id="text-org4530cf0">
+<p>
+I started to figure out the indentation. At first, I found this package <a href="https://codeberg.org/FelipeLema/tree-sitter-indent.el">tree-sitter-indent.el</a>, it seems in a fairly early stage, only supports rust right now, it does have some instruction to adding new language support. But it requires some deep knowledge in Tree-sitter and the language parser that I don&rsquo;t have, and I also only want to handle the JSX part, leave the TypeScript part to <code>typescript-mode</code>, so I spent 4h to come up with this&#x2026;
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">defun</span> <span style="color: #29838D;">typescript-tsx-tree-sitter-indent-line</span> <span style="color: #97365B;">()</span>
+  <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">if-let*</span> <span style="color: #4F894C;">(</span><span style="color: #842879;">(</span>col <span style="color: #3B6EA8;">(</span>typescript-tsx-tree-sitter--proper-indentation<span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span>
+            <span style="color: #842879;">(</span>offset <span style="color: #3B6EA8;">(</span><span style="color: #97365B;">-</span> <span style="color: #97365B;">(</span><span style="color: #97365B;">current-column</span><span style="color: #97365B;">)</span> <span style="color: #97365B;">(</span><span style="color: #97365B;">current-indentation</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span><span style="color: #4F894C;">)</span>
+      <span style="color: #4F894C;">(</span><span style="color: #3B6EA8;">progn</span>
+        <span style="color: #842879;">(</span><span style="color: #29838D;">indent-line-to</span> col<span style="color: #842879;">)</span>
+        <span style="color: #842879;">(</span><span style="color: #97365B;">move-to-column</span> <span style="color: #3B6EA8;">(</span><span style="color: #97365B;">+</span> offset col<span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span><span style="color: #4F894C;">)</span>
+    <span style="color: #4F894C;">(</span><span style="color: #29838D;">typescript-indent-line</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+
+<span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">defun</span> <span style="color: #29838D;">typescript-tsx-tree-sitter--in-tsx</span> <span style="color: #97365B;">(</span>node-type parent-type<span style="color: #97365B;">)</span>
+  <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">--some?</span> <span style="color: #4F894C;">(</span><span style="color: #29838D;">s-starts-with?</span> <span style="color: #4F894C;">"jsx"</span> it<span style="color: #4F894C;">)</span>
+           <span style="color: #4F894C;">(</span><span style="color: #3B6EA8;">--map</span> <span style="color: #842879;">(</span><span style="color: #97365B;">format</span> <span style="color: #4F894C;">"%s"</span> it<span style="color: #842879;">)</span> <span style="color: #842879;">(</span><span style="color: #97365B;">list</span> node-type parent-type<span style="color: #842879;">)</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+
+<span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">defun</span> <span style="color: #29838D;">typescript-tsx-tree-sitter--proper-indentation</span> <span style="color: #97365B;">()</span>
+  <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">save-excursion</span>
+    <span style="color: #4F894C;">(</span><span style="color: #29838D;">back-to-indentation</span><span style="color: #4F894C;">)</span>
+    <span style="color: #4F894C;">(</span><span style="color: #3B6EA8;">-let*</span> <span style="color: #842879;">(</span><span style="color: #3B6EA8;">(</span>node <span style="color: #97365B;">(</span><span style="color: #29838D;">tree-sitter-node-at-point</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+            <span style="color: #3B6EA8;">(</span>parent <span style="color: #97365B;">(</span><span style="color: #29838D;">tsc-get-parent</span> node<span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+            <span style="color: #3B6EA8;">(</span>node-type <span style="color: #97365B;">(</span><span style="color: #29838D;">tsc-node-type</span> node<span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+            <span style="color: #3B6EA8;">(</span>parent-type <span style="color: #97365B;">(</span><span style="color: #29838D;">tsc-node-type</span> parent<span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span>
+      <span style="color: #8b94a5;">;; </span><span style="color: #8b94a5;">only handles jsx related indention</span>
+      <span style="color: #842879;">(</span><span style="color: #3B6EA8;">when</span> <span style="color: #3B6EA8;">(</span>typescript-tsx-tree-sitter--in-tsx node-type parent-type<span style="color: #3B6EA8;">)</span>
+        <span style="color: #8b94a5;">;; </span><span style="color: #8b94a5;">(message "current: %s" node-type)</span>
+        <span style="color: #8b94a5;">;; </span><span style="color: #8b94a5;">(message "parent: %s" parent-type)</span>
+        <span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">cond</span>
+         <span style="color: #97365B;">(</span><span style="color: #4F894C;">(</span><span style="color: #3B6EA8;">and</span> <span style="color: #842879;">(</span><span style="color: #97365B;">member</span> node-type <span style="color: #3B6EA8;">'</span><span style="color: #3B6EA8;">(</span><span style="color: #4F894C;">"{"</span> <span style="color: #4F894C;">"}"</span><span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span>
+               <span style="color: #842879;">(</span><span style="color: #97365B;">eq</span> <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">jsx_expression</span> parent-type<span style="color: #842879;">)</span><span style="color: #4F894C;">)</span>
+          <span style="color: #4F894C;">(</span><span style="color: #97365B;">+</span> <span style="color: #842879;">(</span><span style="color: #97365B;">cdr</span> <span style="color: #3B6EA8;">(</span><span style="color: #29838D;">tsc-node-start-point</span> <span style="color: #97365B;">(</span><span style="color: #29838D;">tsc-get-parent</span> parent<span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span> <span style="color: #842879;">typescript-indent-level</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span>
+         <span style="color: #97365B;">(</span><span style="color: #4F894C;">(</span><span style="color: #97365B;">eq</span> <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">jsx_expression</span> parent-type<span style="color: #4F894C;">)</span>
+          nil<span style="color: #97365B;">)</span>
+         <span style="color: #97365B;">(</span><span style="color: #4F894C;">(</span><span style="color: #97365B;">eq</span> <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">jsx_attribute</span> parent-type<span style="color: #4F894C;">)</span>
+          <span style="color: #4F894C;">(</span><span style="color: #97365B;">+</span> <span style="color: #842879;">(</span><span style="color: #97365B;">cdr</span> <span style="color: #3B6EA8;">(</span><span style="color: #29838D;">tsc-node-start-point</span> <span style="color: #97365B;">(</span><span style="color: #29838D;">tsc-get-parent</span> parent<span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span> <span style="color: #842879;">typescript-indent-level</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span>
+         <span style="color: #97365B;">(</span><span style="color: #4F894C;">(</span><span style="color: #97365B;">eq</span> <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">jsx_expression</span> node-type<span style="color: #4F894C;">)</span>
+          <span style="color: #4F894C;">(</span><span style="color: #97365B;">+</span> <span style="color: #842879;">typescript-indent-level</span> <span style="color: #842879;">(</span><span style="color: #97365B;">cdr</span> <span style="color: #3B6EA8;">(</span><span style="color: #29838D;">tsc-node-start-point</span> node<span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span>
+         <span style="color: #97365B;">(</span><span style="color: #4F894C;">(</span><span style="color: #97365B;">member</span> node-type <span style="color: #3B6EA8;">'</span><span style="color: #842879;">(</span><span style="color: #4F894C;">"&gt;"</span> <span style="color: #4F894C;">"/"</span><span style="color: #842879;">)</span><span style="color: #4F894C;">)</span>
+          <span style="color: #4F894C;">(</span><span style="color: #97365B;">cdr</span> <span style="color: #842879;">(</span><span style="color: #29838D;">tsc-node-start-point</span> parent<span style="color: #842879;">)</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span>
+         <span style="color: #97365B;">(</span><span style="color: #4F894C;">(</span><span style="color: #97365B;">eq</span> <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">jsx_closing_element</span> parent-type<span style="color: #4F894C;">)</span>
+          <span style="color: #4F894C;">(</span><span style="color: #97365B;">cdr</span> <span style="color: #842879;">(</span><span style="color: #29838D;">tsc-node-start-point</span> <span style="color: #3B6EA8;">(</span><span style="color: #29838D;">tsc-get-parent</span> parent<span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span>
+         <span style="color: #97365B;">(</span><span style="color: #4F894C;">(</span><span style="color: #97365B;">eq</span> <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">jsx_self_closing_element</span> parent-type<span style="color: #4F894C;">)</span>
+          nil<span style="color: #97365B;">)</span>
+         <span style="color: #97365B;">(</span><span style="color: #4F894C;">(</span><span style="color: #97365B;">eq</span> <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">jsx_self_closing_element</span> node-type<span style="color: #4F894C;">)</span>
+          <span style="color: #4F894C;">(</span><span style="color: #97365B;">+</span> <span style="color: #842879;">(</span><span style="color: #97365B;">cdr</span> <span style="color: #3B6EA8;">(</span><span style="color: #29838D;">tsc-node-start-point</span> node<span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span> <span style="color: #842879;">typescript-indent-level</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span>
+         <span style="color: #97365B;">(</span>t
+          <span style="color: #4F894C;">(</span><span style="color: #97365B;">+</span> <span style="color: #842879;">(</span><span style="color: #97365B;">cdr</span> <span style="color: #3B6EA8;">(</span><span style="color: #29838D;">tsc-node-start-point</span> parent<span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span> <span style="color: #842879;">typescript-indent-level</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+
+<p>
+It&rsquo;s kind of working, but so much worse than the <code>web-mode</code> version. And I believe I missed lots of use cases.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgbef2920" class="outline-2">
+<h2 id="orgbef2920">Indentation with rjsx-mode</h2>
+<div class="outline-text-2" id="text-orgbef2920">
+<p>
+Before I got frustrated, I started wondering: &ldquo;Why <code>.jsx</code> files&rsquo; indentation works so well?&rdquo;.
+</p>
+
+<p>
+The answer is <a href="https://github.com/felipeochoa/rjsx-mode">rjsx-mode</a>, it&rsquo;s a lot simpler than web-mode, and of course, does not support TypeScript, but I only want it to handle the indentation. It should be easy, right?
+</p>
+
+<p>
+The answer is YES! <code>rjsx-mode</code> provides a <code>rjsx-minor-mode</code> which parses JSX syntax into AST, it can then be used in other <code>rjsx-mode</code> function, in this case, <code>rjsx-indent-line</code>. It will probably comes with a performance cost, but I feel it&rsquo;s worth.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org6f798c0" class="outline-2">
+<h2 id="org6f798c0">The Final Result</h2>
+<div class="outline-text-2" id="text-org6f798c0">
+<p>
+Here is the working configuration I ended up with, even some bonus &ldquo;electric&rdquo; action from <code>rjsx-mode</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">use-package!</span> typescript-mode
+  <span style="color: #29838D;">:mode</span> <span style="color: #97365B;">(</span><span style="color: #4F894C;">"\\.tsx\\'"</span> . typescript-tsx-tree-sitter-mode<span style="color: #97365B;">)</span>
+  <span style="color: #29838D;">:config</span>
+  <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">setq</span> <span style="color: #842879;">typescript-indent-level</span> <span style="color: #97365B; font-weight: bold;">2</span><span style="color: #97365B;">)</span>
+
+  <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">define-derived-mode</span> <span style="color: #29838D;">typescript-tsx-tree-sitter-mode</span> typescript-mode <span style="color: #4F894C;">"TypeScript TSX"</span>
+    <span style="color: #4F894C;">(</span><span style="color: #3B6EA8;">setq-local</span> <span style="color: #842879;">indent-line-function</span> <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">rjsx-indent-line</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span>
+
+  <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">add-hook!</span> <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">typescript-tsx-tree-sitter-mode-local-vars-hook</span>
+             <span style="color: #3B6EA8;">#'</span><span style="color: #9A7500;">+javascript-init-lsp-or-tide-maybe-h</span>
+             <span style="color: #3B6EA8;">#'</span><span style="color: #842879;">rjsx-minor-mode</span><span style="color: #97365B;">)</span>
+  <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">map!</span> <span style="color: #29838D;">:map</span> <span style="color: #842879;">typescript-tsx-tree-sitter-mode-map</span>
+        <span style="color: #4F894C;">"&lt;"</span> <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">rjsx-electric-lt</span>
+        <span style="color: #4F894C;">"&gt;"</span> <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">rjsx-electric-gt</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+
+<span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">after!</span> tree-sitter
+  <span style="color: #97365B;">(</span><span style="color: #29838D;">add-to-list</span> <span style="color: #3B6EA8;">'</span><span style="color: #842879;">tree-sitter-major-mode-language-alist</span> <span style="color: #3B6EA8;">'</span><span style="color: #4F894C;">(</span>typescript-tsx-tree-sitter-mode . tsx<span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgd929a45" class="outline-2">
+<h2 id="orgd929a45">emacs-mac</h2>
+<div class="outline-text-2" id="text-orgd929a45">
+<p>
+All the above is I trying to improve TSX support in Doom Emacs with emacs 28 w/ native-compile on a macbook.
+</p>
+
+<p>
+A day after that, I&rsquo;m trying out the <a href="https://bitbucket.org/mituharu/emacs-mac/src/master/">emacs-mac</a> port, turns out it can massively improve the Emacs performance on <b>macOS</b>, way much than emacs 28 w/ native-compile. I guess the biggest problem is not web-mode or lisp after all, but I feel it still helps. The rjsx electric magic is fantastic.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org040cc13" class="outline-2">
+<h2 id="org040cc13">More on Tree-sitter</h2>
+<div class="outline-text-2" id="text-org040cc13">
+<p>
+There is another take on <a href="https://archive.casouri.cat/note/2021/emacs-tree-sitter/">integrating tree-sitter into emacs core</a>, I hope this can make tsx or in general web development better in Emacs.
+</p>
+</div>
+</div>

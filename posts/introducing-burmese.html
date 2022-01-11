@@ -1,0 +1,142 @@
+---
+title: Introducing Burmese
+author: A.I.
+categories: osx linux gtk rust
+language: en
+date: 2021-08-02
+---
+
+<div id="org2c31199" class="figure">
+<p><img src="https://assets.luois.me/introducing-burmese/showcase.gif" alt="showcase.gif" />
+</p>
+</div>
+
+<p>
+Annimated cat on the screen that relaxes your eyes and mind.
+</p>
+
+<div id="outline-container-org6a75d57" class="outline-2">
+<h2 id="org6a75d57">But Why?</h2>
+<div class="outline-text-2" id="text-org6a75d57">
+<p>
+About 2 years ago, I found this awesome <a href="https://addons.mozilla.org/en-US/firefox/addon/a-n-i-m-a-t-e-d-kitty-cat/">Firefox theme</a>, I&rsquo;m astonished, because who doesn&rsquo;t like a cat wagging his tail on their screen? But the extension is somewhat outdated, cat looks blurry on hidpi screens, and I also want it on my emacs! So why not?
+</p>
+
+<p>
+Then I extracted the images from the extension, converted to png and svg (didn&rsquo;t remember how, should have taken notes). And dragged them into Xcode since I was using a macbook back then.
+</p>
+
+<p>
+Then time passed, I mainly use my desktop running Linux (I use <del>Arch</del> Gentoo BTW), I totally forgot this cat (sorry) for almost 2 years, until I opened it again on my macbook last Monday, I was thinking, damn, I needed it on my desktop too.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org2c29a2f" class="outline-2">
+<h2 id="org2c29a2f">Choose a stack</h2>
+<div class="outline-text-2" id="text-org2c29a2f">
+<p>
+It&rsquo;s a rather simple application, which, just rendering images, change it every 1/10 seconds, in another word, a frame animation. But in order to display nicely on the desktop, it needs some unordinary features.
+</p>
+
+<ul class="org-ul">
+<li>window needs to be transparent, so it looks nice.</li>
+<li>better if we can click through it so it won&rsquo;t block the mouse events for the application underneath.</li>
+</ul>
+
+<p>
+These two requirements sounds easy enough, and can simply implemented with the cocoa version, but I find them very challenging for its <del>cross platform</del> implementation.
+</p>
+
+<p>
+First come to mind is to use electron, I tried that 2 years ago but had some issue about transparency and I don&rsquo;t really like electron that much. So I decide to try other frameworks.
+</p>
+</div>
+
+<div id="outline-container-org54d01e7" class="outline-3">
+<h3 id="org54d01e7">Rust</h3>
+<div class="outline-text-3" id="text-org54d01e7">
+<p>
+I&rsquo;m not a fan of rust, but I do like its toolchain, <code>cargo</code> and <code>rustup</code> is simple to run and setup, save me some time to worry about Makefile or gcc. And also for this simple app, I don&rsquo;t need to learn much about rust to get it done.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org087a293" class="outline-3">
+<h3 id="org087a293">sdl2</h3>
+<div class="outline-text-3" id="text-org087a293">
+<p>
+First I wanted to try some &ldquo;light&rdquo; frameworks, <a href="https://www.libsdl.org/">Simple DirectMedia Layer</a> is a light-weight, cross-platform library mostly used for game development, but it should display a image quite easily.
+</p>
+
+<p>
+BUT, I can&rsquo;t get it to draw a transparent pixel and the top window, either macos nor linux(i3). I have tried to set <code>BlendMode</code> and set window opacity, remove the hint for not using compositor on linux, none of them works, and I don&rsquo;t want to waste 4 more hours on it, so pass.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org8dda218" class="outline-3">
+<h3 id="org8dda218">gtk3</h3>
+<div class="outline-text-3" id="text-org8dda218">
+<p>
+Rust has a nicely maintained <a href="https://gtk-rs.org/">gtk binding</a>, as a &ldquo;living on the edge&rdquo; type of guy, I tried the gtk4 version first, but it seems lack a lot nice API gtk3 have, so I settled with gtk3.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgdca349a" class="outline-2">
+<h2 id="orgdca349a">Implementation</h2>
+<div class="outline-text-2" id="text-orgdca349a">
+<p>
+Creating an animation is really easy with the <code>PixbufSimpleAnim</code> API, and it handles svg out of box.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-rust"><span style="color: #3B6EA8;">let</span> <span style="color: #842879;">anime</span> <span style="color: #3B6EA8;">=</span> <span style="color: #9A7500;">PixbufSimpleAnim</span><span style="color: #3B4252; background-color: #E5E9F0;">::</span><span style="color: #5d86b6; font-weight: bold;">new</span><span style="color: #3B4252; background-color: #E5E9F0;">(</span><span style="color: #97365B;">WIDTH</span>, <span style="color: #97365B;">HEIGHT</span>, <span style="color: #29838D;">10.0</span><span style="color: #3B4252; background-color: #E5E9F0;">)</span><span style="color: #3B4252; background-color: #E5E9F0;">;</span>
+<span style="color: #3B6EA8;">for</span> <span style="color: #842879;">i</span> <span style="color: #3B6EA8;">in</span> <span style="color: #29838D;">1</span>..<span style="color: #29838D;">22</span> {
+    <span style="color: #3B6EA8;">let</span> <span style="color: #842879;">data</span> <span style="color: #3B6EA8;">=</span> <span style="color: #9A7500;">Cats</span><span style="color: #3B4252; background-color: #E5E9F0;">::</span><span style="color: #5d86b6; font-weight: bold;">get</span><span style="color: #3B4252; background-color: #E5E9F0;">(</span><span style="color: #3B6EA8;">&amp;</span><span style="color: #3B6EA8; font-weight: bold;">format!</span><span style="color: #3B4252; background-color: #E5E9F0;">(</span><span style="color: #4F894C;">"svg_cat</span><span style="color: #4F894C; font-style: italic;">{}</span><span style="color: #4F894C;">.svg"</span>, i<span style="color: #3B4252; background-color: #E5E9F0;">))</span><span style="color: #3B4252; background-color: #E5E9F0;">.</span><span style="color: #5d86b6; font-weight: bold; font-style: italic;">unwrap</span><span style="color: #3B4252; background-color: #E5E9F0;">()</span><span style="color: #3B4252; background-color: #E5E9F0;">;</span>
+    <span style="color: #3B6EA8;">let</span> <span style="color: #842879;">buffer</span> <span style="color: #3B6EA8;">=</span> <span style="color: #9A7500;">ByteBuffer</span><span style="color: #3B4252; background-color: #E5E9F0;">::</span><span style="color: #5d86b6; font-weight: bold;">from_bytes</span><span style="color: #3B4252; background-color: #E5E9F0;">(</span><span style="color: #3B6EA8;">&amp;</span>data<span style="color: #3B4252; background-color: #E5E9F0;">)</span><span style="color: #3B4252; background-color: #E5E9F0;">;</span>
+    <span style="color: #3B6EA8;">let</span> <span style="color: #842879;">pixbuf</span> <span style="color: #3B6EA8;">=</span> <span style="color: #9A7500;">Pixbuf</span><span style="color: #3B4252; background-color: #E5E9F0;">::</span><span style="color: #5d86b6; font-weight: bold;">from_read</span><span style="color: #3B4252; background-color: #E5E9F0;">(</span>buffer<span style="color: #3B4252; background-color: #E5E9F0;">)</span><span style="color: #3B4252; background-color: #E5E9F0;">.</span><span style="color: #5d86b6; font-weight: bold; font-style: italic;">unwrap</span><span style="color: #3B4252; background-color: #E5E9F0;">()</span><span style="color: #3B4252; background-color: #E5E9F0;">;</span>
+    anime<span style="color: #3B4252; background-color: #E5E9F0;">.</span><span style="color: #5d86b6; font-weight: bold; font-style: italic;">add_frame</span><span style="color: #3B4252; background-color: #E5E9F0;">(</span><span style="color: #3B6EA8;">&amp;</span>pixbuf<span style="color: #3B4252; background-color: #E5E9F0;">)</span><span style="color: #3B4252; background-color: #E5E9F0;">;</span>
+}
+anime<span style="color: #3B4252; background-color: #E5E9F0;">.</span><span style="color: #5d86b6; font-weight: bold; font-style: italic;">set_loop</span><span style="color: #3B4252; background-color: #E5E9F0;">(</span><span style="color: #29838D;">true</span><span style="color: #3B4252; background-color: #E5E9F0;">)</span><span style="color: #3B4252; background-color: #E5E9F0;">;</span>
+</pre>
+</div>
+
+<p>
+I wanted the images bundled in the binary, so <a href="https://github.com/pyros2097/rust-embed">rust-embed</a> comes to help.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-rust"><span style="color: #3B6EA8; font-weight: bold;">#</span><span style="color: #3B4252; background-color: #E5E9F0; font-weight: bold;">[</span><span style="color: #3B6EA8; font-weight: bold;">derive</span><span style="color: #3B4252; background-color: #E5E9F0; font-weight: bold;">(</span><span style="color: #9A7500; font-weight: bold;">RustEmbed</span><span style="color: #3B4252; background-color: #E5E9F0; font-weight: bold;">)]</span>
+<span style="color: #3B6EA8; font-weight: bold;">#</span><span style="color: #3B4252; background-color: #E5E9F0; font-weight: bold;">[</span><span style="color: #3B6EA8; font-weight: bold;">folder </span><span style="color: #3B6EA8; font-weight: bold;">=</span><span style="color: #3B6EA8; font-weight: bold;"> </span><span style="color: #4F894C; font-weight: bold;">"cats"</span><span style="color: #3B4252; background-color: #E5E9F0; font-weight: bold;">]</span>
+<span style="color: #3B6EA8;">struct</span> <span style="color: #9A7500;">Cats</span><span style="color: #3B4252; background-color: #E5E9F0;">;</span>
+</pre>
+</div>
+
+<p>
+And we need gtk to use the compositor so it can show transparent pixels.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-rust"><span style="color: #3B6EA8;">let</span> <span style="color: #842879;">screen</span> <span style="color: #3B6EA8;">=</span> win<span style="color: #3B4252; background-color: #E5E9F0;">.</span><span style="color: #5d86b6; font-weight: bold; font-style: italic;">screen</span><span style="color: #3B4252; background-color: #E5E9F0;">()</span><span style="color: #3B4252; background-color: #E5E9F0;">.</span><span style="color: #5d86b6; font-weight: bold; font-style: italic;">unwrap</span><span style="color: #3B4252; background-color: #E5E9F0;">()</span><span style="color: #3B4252; background-color: #E5E9F0;">;</span>
+win<span style="color: #3B4252; background-color: #E5E9F0;">.</span><span style="color: #5d86b6; font-weight: bold; font-style: italic;">set_visual</span><span style="color: #3B4252; background-color: #E5E9F0;">(</span>screen<span style="color: #3B4252; background-color: #E5E9F0;">.</span><span style="color: #5d86b6; font-weight: bold; font-style: italic;">rgba_visual</span><span style="color: #3B4252; background-color: #E5E9F0;">()</span><span style="color: #3B4252; background-color: #E5E9F0;">.</span><span style="color: #5d86b6; font-weight: bold; font-style: italic;">as_ref</span><span style="color: #3B4252; background-color: #E5E9F0;">())</span><span style="color: #3B4252; background-color: #E5E9F0;">;</span>
+</pre>
+</div>
+
+<p>
+The rest of the code is just passing some params to create and display the window, that&rsquo;s it.
+</p>
+
+<p>
+<a href="https://gitlab.com/merrickluo/burmese">The repo</a> is at <a href="https://gitlab.com/">Gitlab</a>, please try it out!
+</p>
+
+<blockquote>
+<p>
+All credits goes to the author of the <a href="https://addons.mozilla.org/en-US/firefox/addon/a-n-i-m-a-t-e-d-kitty-cat/">Firefox theme</a>!
+</p>
+</blockquote>
+</div>
+</div>

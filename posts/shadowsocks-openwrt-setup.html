@@ -1,0 +1,176 @@
+---
+title: Shadowsocks Openwrt Setup
+author: A.I.
+categories: wall
+language: en
+date: 2018-03-14
+---
+<p>
+正常来讲我本来不想写一篇 “Yet another Shadowsocks installation guide&ldquo;，不过前几天升级路由发现又得编译一次然后之前的工具又不见了的时候，又得到 Google
+“翻箱倒柜”找编译步骤，不如记下来顺便发一下吧。
+</p>
+
+<div id="outline-container-orgba6bb8f" class="outline-2">
+<h2 id="orgba6bb8f">编译环境</h2>
+<div class="outline-text-2" id="text-orgba6bb8f">
+<p>
+到 <a href="https://downloads.openwrt.org/">Openwrt</a> 找到路由器对应的 SDK 下载条目，我路由器是 WNDR4300，版本是 lede
+17.01.4，SDK 名字是
+<code>lede-sdk-17.01.4-ar71xx-nand_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz</code>
+之所以先看名字是想确定 gcc 的版本，据经验来看，使用其他版本的 gcc 编译会很惨（此处省略 200 字抱怨）。
+</p>
+
+<p>
+由于这时候还没有翻墙，所以编译最好在一个墙外的 VPS 上搞定。（安装 docker 这种步骤就先跳过了）。
+</p>
+
+<p>
+#+NAME prepare gcc
+</p>
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #3B6EA8; font-weight: bold;">docker</span> run <span style="color: #97365B;">-it</span> <span style="color: #97365B;">--name</span> lede gcc:5.4 bash
+
+<span style="color: #29838D; font-weight: bold;">cd</span> /usr/src
+<span style="color: #5d86b6; font-weight: bold;">curl</span> <span style="color: #3B6EA8;">$</span><span style="color: #97365B; font-style: italic;">SDK_URL</span> <span style="color: #97365B;">-O</span>
+<span style="color: #5d86b6; font-weight: bold;">tar</span> xvf <span style="color: #3B6EA8;">$</span><span style="color: #97365B; font-style: italic;">SDK_FILENAME</span>
+<span style="color: #5d86b6; font-weight: bold;">mv</span> <span style="color: #3B6EA8;">$</span><span style="color: #97365B; font-style: italic;">SDK_DIR</span> lede-sdk
+<span style="color: #29838D; font-weight: bold;">cd</span> lede-sdk
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgee6d2e3" class="outline-2">
+<h2 id="orgee6d2e3">编译</h2>
+<div class="outline-text-2" id="text-orgee6d2e3">
+<p>
+这两位 <a href="https://github.com/shadowsocks/openwrt-shadowsocks">openwrt-shadowsocks</a> &amp; <a href="https://github.com/shadowsocks/luci-app-shadowsocks">luci-app-shadowsocks</a>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell" id="orgd6dc8ef"><span style="color: #5d86b6; font-weight: bold;">git</span> clone https://github.com/shadowsocks/openwrt-feeds.git package/feeds
+<span style="color: #5d86b6; font-weight: bold;">git</span> clone https://github.com/shadowsocks/openwrt-shadowsocks.git package/shadowsocks-libev
+
+
+<span style="color: #5d86b6; font-weight: bold;">git</span> clone https://github.com/shadowsocks/luci-app-shadowsocks.git package/luci-app-shadowsocks
+
+<span style="color: #29838D; font-weight: bold;">pushd</span> package/luci-app-shadowsocks/tools/po2lmo
+<span style="color: #5d86b6; font-weight: bold;">make</span> <span style="color: #3B6EA8;">&amp;&amp;</span> <span style="color: #5d86b6; font-weight: bold;">make</span> install
+<span style="color: #29838D; font-weight: bold;">popd</span>
+
+<span style="color: #5d86b6; font-weight: bold;">make</span> menuconfig
+
+<span style="color: #5d86b6; font-weight: bold;">make</span> package/shadowsocks-libev/compile <span style="color: #842879;">V</span>=<span style="color: #97365B; font-weight: bold;">99</span>
+<span style="color: #5d86b6; font-weight: bold;">make</span> package/luci-app-shadowsocks/compile <span style="color: #842879;">V</span>=<span style="color: #97365B; font-weight: bold;">99</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6751360" class="outline-2">
+<h2 id="org6751360">打包</h2>
+<div class="outline-text-2" id="text-org6751360">
+<div class="org-src-container">
+<pre class="src src-shell" id="orgf7bd496"><span style="color: #5d86b6; font-weight: bold;">mkdir</span> ipks
+
+<span style="color: #8b94a5;"># &#26377;&#20123;&#26159;&#19981;&#38656;&#35201;&#30340;&#65292;&#19981;&#36807;&#25042;&#24471;&#33457;&#26102;&#38388;&#21435;&#25490;&#38500;&#20102;</span>
+<span style="color: #5d86b6; font-weight: bold;">cp</span> bin/packages/mips_24kc/base/*.ipk ipks/
+<span style="color: #5d86b6; font-weight: bold;">cp</span> bin/packages/mips_24kc/packages/*.ipk ipks/
+<span style="color: #5d86b6; font-weight: bold;">cp</span> bin/targets/ar71xx/nand/pacakges/*.ipk ipks/
+
+<span style="color: #5d86b6; font-weight: bold;">tar</span> cvf notimportant.tar ipks
+
+<span style="color: #5d86b6; font-weight: bold;">exit</span>
+
+<span style="color: #3B6EA8; font-weight: bold;">docker</span> <span style="color: #9A7500;">cp</span> lede:/usr/src/lede-sdk/notimportant.tar ./
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org46f9ae0" class="outline-2">
+<h2 id="org46f9ae0">安装</h2>
+<div class="outline-text-2" id="text-org46f9ae0">
+<div class="org-src-container">
+<pre class="src src-shell" id="org45a988c"><span style="color: #5d86b6; font-weight: bold;">scp</span> notimportant.tar root@lede:/tmp/
+
+<span style="color: #5d86b6; font-weight: bold;">ssh</span> root@lede
+<span style="color: #29838D; font-weight: bold;">cd</span> /tmp
+<span style="color: #5d86b6; font-weight: bold;">tar</span> xvf notimportant.tar
+<span style="color: #29838D; font-weight: bold;">cd</span> ipks
+<span style="color: #5d86b6; font-weight: bold;">opkg</span> install *.ipk
+
+<span style="color: #5d86b6; font-weight: bold;">opkg</span> update
+<span style="color: #5d86b6; font-weight: bold;">opkg</span> install iptables-mod-tproxy
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0c62726" class="outline-2">
+<h2 id="org0c62726">DNS 和 chnroutes</h2>
+<div class="outline-text-2" id="text-org0c62726">
+<p>
+这里用的是 <a href="https://github.com/felixonmars/dnsmasq-china-list">dnsmasq-china-list</a>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell" id="orgc0a8fab"><span style="color: #5d86b6; font-weight: bold;">git</span> clone https://github.com/felixonmars/dnsmasq-china-list.git
+<span style="color: #29838D; font-weight: bold;">cd</span> dnsmasq-china-list
+<span style="color: #5d86b6; font-weight: bold;">scp</span> *.conf root@lede:~/
+
+<span style="color: #5d86b6; font-weight: bold;">ssh</span> root@lede
+<span style="color: #5d86b6; font-weight: bold;">mkdir</span> /etc/dnsmasq.conf.d
+<span style="color: #5d86b6; font-weight: bold;">mv</span> *.conf /etc/dnsmasq.conf.d/
+
+<span style="color: #8b94a5;"># opkg install vim</span>
+<span style="color: #5d86b6; font-weight: bold;">vim</span> /etc/dnsmasq.conf
+<span style="color: #8b94a5;"># insert conf-dir=/etc/dnsmasq.conf.d/</span>
+
+<span style="color: #5d86b6; font-weight: bold;">opkg</span> remove dnsmasq <span style="color: #3B6EA8;">&amp;&amp;</span> <span style="color: #5d86b6; font-weight: bold;">opkg</span> install dnsmasq-full
+<span style="color: #5d86b6; font-weight: bold;">/etc/init.d/dnsmasq</span> restart
+</pre>
+</div>
+
+<p>
+然后再配置一个没有污染的 DNS，最好在 luci 里面，方便修改。
+</p>
+
+<p>
+最后是 <a href="https://github.com/shadowsocks/luci-app-shadowsocks/wiki/use-crontab-to-update-the-ignore.list">chnroutes</a>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell" id="org1533210"><span style="color: #5d86b6; font-weight: bold;">vim</span> /usr/bin/update-ignore-list
+
+<span style="color: #8b94a5;"># insert</span>
+<span style="color: #8b94a5;">#!/bin/sh</span>
+
+<span style="color: #29838D; font-weight: bold;">set</span> <span style="color: #97365B;">-e</span> <span style="color: #97365B;">-o</span> pipefail
+
+<span style="color: #5d86b6; font-weight: bold;">wget</span> <span style="color: #97365B;">-O-</span> <span style="color: #4F894C;">'http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest'</span> <span style="color: #3B6EA8;">|</span> <span style="color: #4F894C;">\</span>
+    <span style="color: #5d86b6; font-weight: bold;">awk</span> <span style="color: #97365B;">-F\|</span> <span style="color: #4F894C;">'/CN\|ipv4/ { printf("%s/%d\n", $4, 32-log($5)/log(2)) }'</span> <span style="color: #3B6EA8;">&gt;</span> <span style="color: #4F894C;">\</span>
+    /tmp/ignore.list
+
+<span style="color: #5d86b6; font-weight: bold;">mv</span> /tmp/ignore.list /etc/
+
+<span style="color: #3B6EA8;">if</span> <span style="color: #5d86b6; font-weight: bold;">pidof</span> ss-redir<span style="color: #3B6EA8;">&gt;</span>/dev/null<span style="color: #3B6EA8;">;</span> <span style="color: #3B6EA8;">then</span>
+    <span style="color: #5d86b6; font-weight: bold;">/etc/init.d/shadowsocks</span> rules
+<span style="color: #3B6EA8;">fi</span>
+
+<span style="color: #8b94a5;"># end</span>
+
+<span style="color: #5d86b6; font-weight: bold;">chmod</span> +x /usr/bin/update-ignore-list
+
+<span style="color: #5d86b6; font-weight: bold;">update-ignore-list</span>
+
+<span style="color: #5d86b6; font-weight: bold;">crontab</span> <span style="color: #97365B;">-e</span>
+<span style="color: #5d86b6; font-weight: bold;">30</span> <span style="color: #97365B; font-weight: bold;">4</span> * * <span style="color: #97365B; font-weight: bold;">0</span> /usr/bin/update-ignore-list <span style="color: #3B6EA8;">&gt;&gt;</span> /var/log/update_ignore_list.log
+</pre>
+</div>
+
+<p>
+Note to self： 下次最好升级之前先弄好。
+</p>
+</div>
+</div>

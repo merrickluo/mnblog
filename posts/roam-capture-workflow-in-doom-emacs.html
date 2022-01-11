@@ -1,0 +1,134 @@
+---
+title: Roam Capture Workflow in Doom Emacs
+author: A.I.
+categories: emacs
+language: en
+date: 2020-04-23
+---
+<p>
+I don&rsquo;t take much notes before, until I recently discovered <a href="https://github.com/jethrokuan/org-roam">org-roam</a>, I tried to learn some note taking workflow in org-mode before, but none of them work out, it&rsquo;s hard to manage all things in a tree if you are not so organized :). org-roam&rsquo;s back link feature is much easier to work with, I can put random stuff in and some tags I think is good, and it&rsquo;s automatically organized like a wiki.
+</p>
+
+<p>
+Anyway, I&rsquo;m still learning and here is how I use it when I want to capture some web page into the roam graph.
+</p>
+
+<div id="outline-container-orgc7865b2" class="outline-2">
+<h2 id="orgc7865b2">Setup Roam Protocol</h2>
+<div class="outline-text-2" id="text-orgc7865b2">
+<p>
+org-roam <a href="https://org-roam.readthedocs.io/en/latest/roam_protocol/">supports org-protocol</a>, so you need to setup org-protocol and roam beforehand, luckily, <a href="https://github.com/hlissner/doom-emacs">doom-emacs</a> setup this nicely for me, all I have to do is change the <code>$doomdir/init.el</code> like this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span>org                <span style="color: #8b94a5;">; </span><span style="color: #8b94a5;">organize your plain life in plain text</span>
+  +dragndrop         <span style="color: #8b94a5;">; </span><span style="color: #8b94a5;">drag &amp; drop files/images into org buffers</span>
+  +hugo              <span style="color: #8b94a5;">; </span><span style="color: #8b94a5;">use Emacs for hugo blogging</span>
+  +roam
+  +journal
+  <span style="color: #8b94a5;">;;</span><span style="color: #8b94a5;">+jupyter         ; ipython/jupyter support for babel</span>
+  <span style="color: #8b94a5;">;;</span><span style="color: #8b94a5;">+pandoc          ; export-with-pandoc support</span>
+  <span style="color: #8b94a5;">;;</span><span style="color: #8b94a5;">+pomodoro        ; be fruitful with the tomato technique</span>
+  <span style="color: #8b94a5;">;;</span><span style="color: #8b94a5;">+present)          ; using org-mode for presentations</span>
+</pre>
+</div>
+
+<p>
+Of course, only the <code>roam</code> part is necessary.
+</p>
+
+<p>
+And a desktop file <code>$HOME/.local/share/applications/org-capture.desktop</code> to handle <code>org-protocol://</code> links.
+</p>
+
+<pre class="example">
+[Desktop Entry]
+Name=Org Capture
+GenericName=Text Editor
+Comment=Edit text
+MimeType=x-scheme-handler/org-protocol;
+Exec=emacsclient -a emacs -c -F '((name . "doom-capture") (transient . t))' %u
+Icon=emacs
+Type=Application
+Terminal=false
+Categories=Development;TextEditor;
+StartupWMClass=Emacs
+Keywords=Text;Editor;
+</pre>
+
+<p>
+The name for the new frame is for identify in window manager, and the transient is for close the new frame after capture is done. Since I&rsquo;m using awesome wm, so I didn&rsquo;t setup the frame size.
+</p>
+
+<p>
+Then follow the guide in <a href="https://org-roam.readthedocs.io/en/latest/roam_protocol/">org-roam documents</a>, add a bookmarklet with following content:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-javascript"><span style="color: #3B6EA8; font-weight: bold;">javascript</span>:location<span style="color: #3B4252; background-color: #E5E9F0;">.</span><span style="color: #842879; font-style: italic;">href</span> <span style="color: #3B6EA8;">=</span>
+<span style="color: #4F894C;">'org-protocol://roam-ref?template=r&amp;ref='</span>
+<span style="color: #3B6EA8;">+</span> <span style="color: #5d86b6; font-weight: bold;">encodeURIComponent</span><span style="color: #3B4252; background-color: #E5E9F0;">(</span>location<span style="color: #3B4252; background-color: #E5E9F0;">.</span><span style="color: #97365B; font-style: italic;">href</span><span style="color: #3B4252; background-color: #E5E9F0;">)</span>
+<span style="color: #3B6EA8;">+</span> <span style="color: #4F894C;">'&amp;title='</span>
+<span style="color: #3B6EA8;">+</span> <span style="color: #5d86b6; font-weight: bold;">encodeURIComponent</span><span style="color: #3B4252; background-color: #E5E9F0;">(</span><span style="color: #29838D;">document</span><span style="color: #3B4252; background-color: #E5E9F0;">.</span><span style="color: #97365B; font-style: italic;">title</span><span style="color: #3B4252; background-color: #E5E9F0;">)</span>
+</pre>
+</div>
+
+<p>
+or if with Firefox and <a href="https://github.com/tridactyl/tridactyl">tridactyl</a>, add a shortcut in <code>$HOME/.tridactylrc</code>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-vimrc">bind ;<span style="color: #3B6EA8;">r</span> <span style="color: #842879;">js</span> javascript:location<span style="color: #97365B;">.</span>href <span style="color: #97365B;">=</span> <span style="color: #4F894C;">'org-protocol:/roam-ref?template=r&amp;ref='</span> <span style="color: #97365B;">+</span> <span style="color: #29838D;">encodeURIComponent</span>(location<span style="color: #97365B;">.</span>href) <span style="color: #97365B;">+</span> <span style="color: #4F894C;">'&amp;title='</span> <span style="color: #97365B;">+</span> <span style="color: #29838D;">encodeURIComponent</span>(document<span style="color: #97365B;">.</span><span style="color: #842879;">title</span>)
+</pre>
+</div>
+
+<p>
+Now when I press ;r in any site, an emacs frame opens up, with title and <code>#ROAM_KEY</code> ready, I can just put my note and thoughts about it and hit C-c C-c.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org6303edb" class="outline-2">
+<h2 id="org6303edb">More space for notes</h2>
+<div class="outline-text-2" id="text-org6303edb">
+<p>
+roam-capture buffer opens in a popup buffer in doom emacs, by default it&rsquo;s too small for taking notes, so I added a popup rule to increase it.
+</p>
+
+<p>
+in <code>$doomdir/config.el</code>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #29838D;">set-popup-rule!</span> <span style="color: #4F894C;">"^CAPTURE"</span> <span style="color: #29838D;">:side</span> <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">bottom</span> <span style="color: #29838D;">:size</span> <span style="color: #97365B; font-weight: bold;">0.90</span> <span style="color: #29838D;">:select</span> t <span style="color: #29838D;">:ttl</span> nil<span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgfe0d78e" class="outline-2">
+<h2 id="orgfe0d78e">Optimize for awesome wm</h2>
+<div class="outline-text-2" id="text-orgfe0d78e">
+<p>
+As I said above, I&rsquo;m using awesome wm, like many tiling wm user, I place my Emacs window in a specific tag, the first one, for me, and Firefox in a specific tag, and it&rsquo;s the second for me. But this is not very convenient for capture workflow, every time I press <code>;r</code> in Firefox, the emacs frame is opened in the first tag, so I need to switch to it and take notes, since the name of the capture frame is fixed <code>doom-capture</code>, so I just exclude it from the rule.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-lua">ruled.client.append_rule {
+    id         = <span style="color: #4F894C;">"emacs"</span>,
+    rule   = {
+        class = <span style="color: #4F894C;">"Emacs"</span>,
+    },
+    except = { name = <span style="color: #4F894C;">"doom-capture"</span>},
+    properties = {
+        tag = <span style="color: #4F894C;">'1'</span>
+    }
+}
+</pre>
+</div>
+
+<p>
+It&rsquo;s working for me pretty well, I take more notes in two weeks than last 4 years, and my tabs in Firefox is much less since I actually read them. Although it&rsquo;s not the only thing org-roam offers, but it&rsquo;s a good start.
+</p>
+</div>
+</div>
