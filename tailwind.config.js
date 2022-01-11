@@ -8,7 +8,7 @@ module.exports = {
       fontFamily: {
         sans: ["overpass"],
         serif: ["Arvo"],
-        mono: ["Source Code Pro"],
+        mono: ["Jetbrains Mono"],
       },
       padding: {
         "1/2": "0.125rem",
