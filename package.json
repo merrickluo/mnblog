@@ -1,5 +1,5 @@
 {
-  "name": "meblog",
+  "name": "mnblog",
   "private": true,
   "scripts": {
     "dev": "next dev",
