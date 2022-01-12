@@ -1,5 +1,5 @@
-import PostList from "../../components/post_list";
-import { getPostCategories, getSortedPostsData } from "../../lib/posts";
+import PostList from "@components/post_list";
+import { getPostCategories, getSortedPostsData } from "@lib/posts";
 
 export function getStaticPaths() {
   return {

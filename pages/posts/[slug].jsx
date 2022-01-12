@@ -1,8 +1,8 @@
 import Head from "next/head";
-import Tag from "../../components/tag";
+import Tag from "@components/tag";
 import { useRouter } from "next/router";
 
-import { getPostData, getSortedPostsData } from "../../lib/posts";
+import { getPostData, getSortedPostsData } from "@lib/posts";
 
 export function getStaticPaths() {
   const allPosts = getSortedPostsData();

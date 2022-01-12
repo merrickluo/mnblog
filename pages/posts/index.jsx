@@ -1,6 +1,6 @@
 import Head from "next/head";
-import PostList from "../../components/post_list";
-import { getSortedPostsData } from "../../lib/posts";
+import PostList from "@components/post_list";
+import { getSortedPostsData } from "@lib/posts";
 
 export function getStaticProps() {
   return {

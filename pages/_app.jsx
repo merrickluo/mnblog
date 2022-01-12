@@ -1,5 +1,5 @@
 import Head from "next/head";
-import BackHome from "../components/back_home";
+import BackHome from "@components/back_home";
 import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }) {
