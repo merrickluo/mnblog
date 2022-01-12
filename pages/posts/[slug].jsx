@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Link from "next/link";
 import Tag from "@components/tag";
 import { useRouter } from "next/router";
 
@@ -51,8 +52,10 @@ export default function Post({ postData }) {
         <ol className="mt-4">
           {postData.categories &&
             postData.categories.map((c) => (
-              <li key={c} className="inline-block">
-                <Tag text={c} href={`/categories/${encodeURIComponent(c)}`} />
+              <li key={c} className="inline-block mr-2 text-sm">
+                <Link href={`/categories/${encodeURIComponent(c)}`} passHref>
+                  <Tag>{c}</Tag>
+                </Link>
               </li>
             ))}
         </ol>

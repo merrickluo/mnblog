@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Tag from "./tag";
 
 export default function PostList({ posts }) {
   if (!posts || posts.length === 0) {
@@ -20,6 +21,9 @@ export default function PostList({ posts }) {
             <Link href={`/posts/${encodeURIComponent(p.slug)}`}>
               <a className="text-lg md:ml-12">{p.title}</a>
             </Link>
+            <div className="ml-1 text-xs">
+              <Tag>{p.language == "zh" ? "文" : "En"}</Tag>
+            </div>
           </div>
         </li>
       ))}
