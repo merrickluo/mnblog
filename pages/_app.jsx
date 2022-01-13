@@ -17,15 +17,15 @@ function MyApp({ Component, pageProps }) {
         </main>
         <footer className="mt-16 w-full flex flex-row items-baseline">
           <span>Made with</span>
-          <span className="px-2">
+          <span className="px-1">
             <a href="https://orgmode.org">Org Mode</a>
           </span>
-          <span>and</span>
-          <span className="px-2">
+          <span>,</span>
+          <span className="px-1">
             <a href="https://tailwindcss.com">TailwindCSS</a>
           </span>
-          <span>and</span>
-          <span className="pl-2">
+          <span>&</span>
+          <span className="pl-1">
             <a href="https://nextjs.org">Next.js</a>
           </span>
           <span>.</span>
