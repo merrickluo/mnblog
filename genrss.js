@@ -33,15 +33,15 @@ function getSortedPostsData() {
 
 const feed = new Feed({
   title: "A.I.'s Blog",
-  link: "https://merrick@luois.me",
+  link: "https://merrick.luois.me",
   description: "Posts in A.I.'s Blog",
   language: "en",
-  favicon: "https://merrick@luois.me/favicon.ico",
+  favicon: "https://merrick.luois.me/favicon.ico",
   updated: new Date(),
 });
 
 getSortedPostsData().forEach((post) => {
-  const url = `https://merrick@luois.me/posts/${post.slug}`;
+  const url = `https://merrick.luois.me/posts/${post.slug}`;
   // fetch again since getSortedPostsData only contains metadata
   feed.addItem({
     title: post.title,
