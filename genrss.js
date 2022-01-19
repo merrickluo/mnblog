@@ -53,4 +53,5 @@ getSortedPostsData().forEach((post) => {
   });
 });
 
-fs.writeFileSync("out/posts/feed.xml", feed.rss2());
+fs.mkdirSync("public/posts", { recursive: true });
+fs.writeFileSync("public/posts/feed.xml", feed.rss2());

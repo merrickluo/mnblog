@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && next export && npm run rss",
+    "build": "npm run rss && next build && next export",
     "rss": "node genrss.js",
     "start": "next start",
     "lint": "next lint"
