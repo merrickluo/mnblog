@@ -16,8 +16,8 @@ export default function Home({ posts }) {
   return (
     <>
       <Head>
-        <title>A.I.&#39;s Blog</title>
-        <meta name="description" content="A.I. Writes here." />
+        <title>{process.env.title}</title>
+        <meta name="description" content={process.env.description} />
       </Head>
       <PostList posts={posts} />
     </>
@@ -29,9 +29,9 @@ Home.getHeader = () => {
     <header className="mb-6 flex justify-between items-center">
       <div>
         <div className="w-full flex justify-between items-center">
-          <h1 className="text-4xl font-bold">A.I.&#39;s Blog</h1>
+          <h1 className="text-4xl font-bold">{process.env.title}</h1>
         </div>
-        <p>A.I. writes here.</p>
+        <p>{process.env.description}</p>
       </div>
       <div>
         <Link href="/posts">

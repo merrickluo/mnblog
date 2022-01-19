@@ -14,8 +14,8 @@ export default function Posts({ posts }) {
   return (
     <>
       <Head>
-        <title>All posts - A.I.&#39;s Blog</title>
-        <meta name="description" content="A.I. Writes here." />
+        <title>All posts - {process.env.title}</title>
+        <meta name="description" content={process.env.description} />
       </Head>
       <h2 className="text-3xl font-bold mb-8">All posts:</h2>
       <PostList posts={posts} />
