@@ -19,7 +19,17 @@ export default function Home({ posts }) {
         <meta name="description" content={process.env.description} />
       </Head>
       <section className="mb-8">
-        <p>This is my personal site.</p>
+        <h2 className="text-3xl font-bold mb-2">About</h2>
+        <p>
+          <span>
+            This is A.I.&#39;s personal site. I post some low quality blog posts
+            here. I use emacs with
+          </span>
+          <span>
+            <a href="https://github.com/hlissner/doom-emacs"> doom-emacs</a>
+          </span>
+          <span>. I also use gentoo(BTW) with i3.</span>
+        </p>
       </section>
       <section>
         <h2 className="text-3xl font-bold mb-8">Recent Posts</h2>
