@@ -29,14 +29,16 @@ export default function Post({ postData }) {
   return (
     <>
       <Head>
-        <title>{postData.title} - A.I.&#39;s Blog</title>
-        <meta name="author" content="A.I." />
+        <title>
+          {postData.title} - {process.env.title}
+        </title>
+        <meta name="author" content={postData.author || "A.I."} />
         <meta property="og:locale" content={postData.language} />
         <meta property="og:type" content="article" />
         <meta property="og:title" content={postData.title} />
         <meta property="og:description" content={postData.description} />
         <meta property="og:url" content={permanentUrl} />
-        <meta property="og:site_name" content="A.I.&#39;s Blog" />
+        <meta property="og:site_name" content={process.env.title} />
         <meta property="og:image" content="" /> {/* TODO add avatar */}
         <meta name="description" content={postData.description} />
       </Head>

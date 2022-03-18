@@ -32,9 +32,9 @@ function getSortedPostsData() {
 }
 
 const feed = new Feed({
-  title: "A.I.'s Blog",
+  title: "Node 13",
   link: "https://merrick.luois.me",
-  description: "Posts in A.I.'s Blog",
+  description: "All Posts in Node 13",
   language: "en",
   favicon: "https://merrick.luois.me/favicon.ico",
   updated: new Date(),
@@ -53,4 +53,5 @@ getSortedPostsData().forEach((post) => {
   });
 });
 
-fs.writeFileSync("out/posts/feed.xml", feed.rss2());
+fs.mkdirSync("public/posts", { recursive: true });
+fs.writeFileSync("public/posts/feed.xml", feed.rss2());
