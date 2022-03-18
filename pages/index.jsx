@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Link from "next/link";
 import PostList from "@components/post_list";
 import Navbar from "@components/navbar";
 import { getSortedPostsData } from "@lib/posts";

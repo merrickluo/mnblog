@@ -75,31 +75,21 @@ strong {
   @apply text-secondary;
 }
 
-article > p,
-article > ul,
-article > ol {
-  @apply text-lg tracking-wide;
-}
-
-article > div,
-article > p,
-article ul,
 article ol,
-pre {
-  @apply mb-4;
+article ul {
+  @apply list-disc ml-8 my-4;
 }
 
-article > ol,
-article > ul {
-  @apply list-disc ml-8;
-}
-
-article > li:not(:last-of-type) {
+article li:not(:last-of-type) {
   @apply mb-2;
 }
 
 article p > code {
   @apply p-1/2 bg-background-alt;
+}
+
+article p {
+  @apply my-4;
 }
 
 article h2 {
