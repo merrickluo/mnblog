@@ -93,7 +93,7 @@ article p {
 }
 
 article h2 {
-  @apply text-2xl my-8 font-bold text-secondary;
+  @apply text-2xl my-6 font-bold text-secondary;
 }
 
 a {
