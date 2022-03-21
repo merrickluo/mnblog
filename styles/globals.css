@@ -135,3 +135,7 @@ pre {
   background: url(/icons/moon-regular.svg) no-repeat;
   filter: invert(1);
 }
+
+figcaption {
+  @apply text-center text-white text-sm;
+}
