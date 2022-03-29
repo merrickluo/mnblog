@@ -1,0 +1,125 @@
+---
+title: "[Short] podman + docker-compose 的一些坑"
+author: A.I.
+category: docker podman linux
+language: en
+date: 2022-03-29
+description: |
+  podman 3.0 的时候[[https://www.redhat.com/sysadmin/podman-docker-compose][增加了对 docker-compose 的支持]]，平时简单用用好像问题不大，今天打算在本地启动一组 [[https://git.sr.ht/~cadence/cloudtube][cloudtube]] 服务时发现坑还是不少，特此记录。* Gentoo w
+---
+<p>
+podman 3.0 的时候<a href="https://www.redhat.com/sysadmin/podman-docker-compose">增加了对 docker-compose 的支持</a>，平时简单用用好像问题不大，今天打算在本地启动一组 <a href="https://git.sr.ht/~cadence/cloudtube">cloudtube</a> 服务时发现坑还是不少，特此记录。
+</p>
+
+<section id="outline-container-org051cc16" class="outline-2">
+<h2 id="org051cc16">Gentoo with openrc 限定</h2>
+<div class="outline-text-2" id="text-org051cc16">
+</div>
+<div id="outline-container-org8061640" class="outline-3">
+<h3 id="org8061640">podman service &amp; rootless</h3>
+<div class="outline-text-3" id="text-org8061640">
+<p>
+podman 对 docker-compose 的支持大概就是模拟了一个 docker.sock，所以也需要启用一个服务来管理，官方当然是用 systemd, 不过好在 gentoo 还是提供了 openrc 的服务文件。但是，需要一些手动的配置，才能让 docker-compose 跑起来。
+</p>
+
+<p>
+默认的 podman service 会使用 user <code>root:root</code>, sock 文件在 <code>/var/run/podman/podman.sock</code>, 可以通过 <code>/etc/conf.d/podman</code> 来自定义，可以将 sock 文件移动到 docker 的默认位置 <code>/var/run/docker.sock</code>, 也可以让 docker-compose 使用 rootless container.
+</p>
+
+<p>
+为了避免需要塞 <code>DOCKER_HOST</code> 到 shell init file, 我选择了将 sock 改成 docker 的默认位置。
+</p>
+
+<div class="org-src-container">
+<label class="org-src-name"><span class="listing-number">Listing 1: </span>in /etc/conf.d/podman</label><pre class="src src-shell"><span style="color: #8b94a5;"># Config file for /etc/init.d/podman</span>
+
+<span style="color: #8b94a5;"># Sets the API service daemon log level</span>
+<span style="color: #8b94a5;"># valid levels: debug, info, warn, error, fatal or panic</span>
+<span style="color: #8b94a5;">#LOG_LEVEL="info"</span>
+
+<span style="color: #8b94a5;"># Sets the API service daemon socket</span>
+<span style="color: #842879; font-style: italic;">SOCKET</span>=<span style="color: #4F894C;">"unix:/var/run/docker.sock"</span>
+
+<span style="color: #8b94a5;"># Configure the user[:group] the API service daemon will run as</span>
+<span style="color: #8b94a5;">#RUN_AS_USER="root:root"</span>
+</pre>
+</div>
+</div>
+</div>
+</section>
+
+<section id="outline-container-orgddb411c" class="outline-2">
+<h2 id="orgddb411c">dnsname plugin</h2>
+<div class="outline-text-2" id="text-orgddb411c">
+<p>
+在使用 docker 作为 docker-compose 的后端时，默认创建的 network 中，services 之间可以通过名字相互访问。但是在使用 podman 作为后端时，默认无法实现这个功能，而是需要用到 <a href="https://github.com/containers/dnsname">dnsname</a> 这个 cni plugin。
+</p>
+
+<p>
+由于 gentoo 没有提供 podman 相关插件的 package, 所以需要手动安装一下。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #5d86b6; font-weight: bold;">git</span> clone https://github.com/containers/dnsname
+<span style="color: #29838D; font-weight: bold;">cd</span> dnsname
+<span style="color: #5d86b6; font-weight: bold;">make</span>
+<span style="color: #5d86b6; font-weight: bold;">make</span> install <span style="color: #842879;">PREFIX</span>=/usr/local
+</pre>
+</div>
+
+<p>
+NOTE: 如果安装前尝试过 docker-compose up，需要清理旧的 container 和 network, 否则
+</p>
+<ol class="org-ol">
+<li>container 无法获取 dnsname plugin 给到的 resolv.conf.</li>
+<li>创建的 network 没有正确配置 dnsname plugin.</li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #8b94a5;"># after docker-compose down</span>
+<span style="color: #5d86b6; font-weight: bold;">sudo</span> podman network <span style="color: #9A7500;">rm</span> xx_default <span style="color: #8b94a5;"># it should be removed, but just in case</span>
+<span style="color: #5d86b6; font-weight: bold;">sudo</span> podman container prune
+</pre>
+</div>
+
+<p>
+NOTE 2: 默认的 dnsname 配置，在同一 network 中访问其他 service 的域名为 <code>[service name].dns.podman</code>, 作为比较，使用 docker 时只需要用 service name 就行。
+</p>
+</div>
+</section>
+
+<section id="outline-container-org2f7e511" class="outline-2">
+<h2 id="org2f7e511">cloudtube</h2>
+<div class="outline-text-2" id="text-org2f7e511">
+<p>
+附上使用的 <code>docker-compose.yml</code> 以供参考。
+</p>
+
+<div class="org-src-container">
+<label class="org-src-name"><span class="listing-number">Listing 2: </span>tube/docker-compose.yml</label><pre class="src src-yaml"><span style="color: #842879;">version</span>: <span style="color: #4F894C;">"3"</span>
+<span style="color: #842879;">services</span>:
+  <span style="color: #842879;">nginx</span>:
+    <span style="color: #842879;">image</span>: nginx:stable-alpine
+    <span style="color: #842879;">ports</span>:
+      - <span style="color: #4F894C;">"80:80"</span>
+    <span style="color: #842879;">volumes</span>:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/sites-available:/etc/nginx/sites-available:ro
+      - ./nginx/sites-enabled:/etc/nginx/sites-enabled:ro
+      - ./nginx/nginxconfig.io:/etc/nginx/nginxconfig.io:ro
+    <span style="color: #842879;">depends_on</span>:
+      - tube
+  <span style="color: #842879;">tube</span>:
+    <span style="color: #842879;">build</span>: ./cloudtube
+    <span style="color: #842879;">ports</span>:
+      - <span style="color: #4F894C;">"10412:10412"</span>
+    <span style="color: #842879;">volumes</span>:
+      - ./config.js:/workdir/config/config.js:ro
+  <span style="color: #842879;">newleaf</span>:
+    <span style="color: #842879;">build</span>: ./NewLeaf
+    <span style="color: #842879;">volumes</span>:
+      - ./configuration.py:/workdir/configuration.py:ro
+</pre>
+</div>
+</div>
+</section>
