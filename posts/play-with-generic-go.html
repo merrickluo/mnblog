@@ -1,0 +1,109 @@
+---
+title: "Play with Generic Go"
+author: A.I.
+category: golang programming opinion
+language: zh
+date: 2022-03-30
+description: |
+  Go 终于在 [[https://tip.golang.org/doc/go1.18][1.18 喜迎泛型]]，在它正式 release 之前忍不住玩了一下，然后跟 [[https://github.com/ahxxm][ahxxm]] 一起写了一个名字非常普通（当然跟 lodash 没有关系，我学的是 dash.el）的工具库 [[https://github.com/merrickluo/go
+---
+<p>
+Go 终于在 <a href="https://tip.golang.org/doc/go1.18">1.18 喜迎泛型</a>，在它正式 release 之前忍不住玩了一下，然后跟 <a href="https://github.com/ahxxm">ahxxm</a> 一起写了一个名字非常普通（当然跟 lodash 没有关系，我学的是 dash.el）的工具库 <a href="https://github.com/merrickluo/go-dash">go-dash</a>。
+</p>
+
+<section id="outline-container-orgb7a0155" class="outline-2">
+<h2 id="orgb7a0155">Go 与泛型与我</h2>
+<div class="outline-text-2" id="text-orgb7a0155">
+<p>
+第一次用 Go 可能要回到 5 年前，刚从一个 Android/iOS Developer 转型，给公司写一个新的后端项目。在用习惯了充满语法糖的 kotlin 和 swift 之后再来使用这样一个“大道至简”的语言确实不太习惯。其中的一点当然就是泛型。关于泛型的讨论在 Go 社区应该从未停止过，这当中还有不少支持者是让我比较难以相信的，这也算是我第一次接触到“语言宗教”这样一个概念吧。不过这就扯远了，我简单说一下我不喜欢的理由吧。
+</p>
+
+<p>
+没有泛型必然导致很多“泛用”方法需要针对不同类型重复定义，在没有泛型的时候，大概有这样三种 workaround(AFAIK)。而这三种方法和我不喜欢的主要理由如下：
+</p>
+
+<ul class="org-ul">
+<li>标准库作弊，比如说 <code>append</code>, <code>len</code> 等。相当于是对于特定数据结构进行了“特殊处理”，如果你有类似的自定义数据结构，却没办法保证一致的处理模式。</li>
+
+<li>使用 <code>interface{}</code> 然后通过反射处理。既享受不了动态语言的好处，却要承担动态语言的坏处。</li>
+
+<li>代码生成。虽然重复，但又没那么重复。生成的代码是代码还是数据？应不应该放在仓库里？</li>
+</ul>
+
+
+<figure id="org8279665">
+<img src="../images/_20220321_131240screenshot.png" alt="_20220321_131240screenshot.png">
+
+<figcaption><span class="figure-number">Figure 1: </span>the many interfaces (from package go-gorp/gorp)</figcaption>
+</figure>
+
+<p>
+他们还有一个共同的问题就是会导致代码的可读性或可浏览性变差，虽然没有盲目使用其他语言的“设计模式”来得伤害那么大，但也算是相当难受了。咳咳，阴阳怪气就到这里吧。毕竟后来官方就宣布“<a href="https://go.dev/blog/generics-next-step">已经在做了</a>”。
+</p>
+
+<p>
+快进到前段时间突然在 HN 看到了 <a href="https://github.com/mattn/go-generics-example">go-generics-example</a>，发现本来预订要在 Go 2 出现的泛型，竟然在 Go 1.17 已经可以实验性开启，也就是说不需要等到<a href="https://go.dev/blog/go2-here-we-come">很大概率不会保持向后兼容</a>的 Go 2 了。
+</p>
+</div>
+</section>
+
+<section id="outline-container-org030e230" class="outline-2">
+<h2 id="org030e230">Go Dash, Go</h2>
+<div class="outline-text-2" id="text-org030e230">
+<p>
+泛型成为 a thing 之后，似乎 Golang 团队对如何修改标准库开始犯难了，作为一个长期向后兼容的语言，如何合理的进化标准库确实是一个很难的话题。详情可见这些讨论：
+</p>
+<ul class="org-ul">
+<li><a href="https://github.com/golang/go/discussions/48287">how to update APIs for generics</a></li>
+<li><a href="https://github.com/golang/go/issues/48918">go: don't change the libraries in 1.18</a>.</li>
+</ul>
+
+<p>
+抱着知道写这些代码多半不会有太大用处的心情，我们还是从 <a href="https://clojuredocs.org/clojure.core">clojure.core</a> 以及 <a href="https://clojuredocs.org/clojure.core.async">clojure.core.async</a> 中精心(<del>随机</del>)挑选了一些 API 之后，就开始模仿(<del>抄袭</del>)了。
+</p>
+
+<p>
+Go 1.17 中的实验性泛型功能无法定义 public function, 所以需要用到 gotip 来获取 master 分支的 Go. 比较惊喜的是 gopls 也同步更新着，所以工具支持上没有任何问题。
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #5d86b6; font-weight: bold;">go</span> get <span style="color: #97365B;">-v</span> golang.org/dl/gotip
+<span style="color: #5d86b6; font-weight: bold;">gotip</span> download
+<span style="color: #5d86b6; font-weight: bold;">gotip</span> get golang.org/x/tools/gopls@master golang.org/x/tools@master
+</pre>
+</div>
+
+<blockquote>
+<p>
+在 <del>发稿日</del> 之前，2022/3/15 Go 1.18 正式 release 了，所以 gotip 不再必要。
+</p>
+</blockquote>
+</div>
+</section>
+
+<section id="outline-container-orgb91b0d9" class="outline-2">
+<h2 id="orgb91b0d9">Gerrit What</h2>
+<div class="outline-text-2" id="text-orgb91b0d9">
+<p>
+实现这些方法倒是也不难（比较难的是我不确定只写了针对 int 类型的测试算不算完全覆盖），不过在写了一点注释后尝试通过 go doc 生成文档时倒是发现了一个奇妙的 bug，那就是
+<b>所有返回 []T 的方法都会被 go doc 忽略</b> ，对于针对 slice 写的 dash 包几乎可以说是全灭了。
+</p>
+
+<p>
+勤奋的 ahxxm 同学即日就阅读了 go doc 源码并提交了 <a href="https://github.com/golang/go/issues/48485">issue</a> 和 <a href="https://go-review.googlesource.com/c/go/+/352389/">pr</a>，不过最后因为某团队 Code Review 效率问题，最后还是被<a href="https://go-review.googlesource.com/c/go/+/362758/">内部解决</a>了。
+</p>
+</div>
+</section>
+
+<section id="outline-container-org7ad02cf" class="outline-2">
+<h2 id="org7ad02cf">Play and Learn</h2>
+<div class="outline-text-2" id="text-org7ad02cf">
+<p>
+Go 其实不算是一个能让人感觉 exciting 的语言，增加泛型这次算是个例外吧。写这个没用的库倒是也能学到一些东西，比如在 pkg.go.dev 可以<a href="https://pkg.go.dev/github.com/merrickluo/go-dash@v0.0.0-20220313083855-09f60221ba81/dash">随意申请添加 package</a>。看到 go doc 生成的 html 之后我对从注释生成文档也没那么讨厌了（治好了我的 javadoc 后遗症）。
+</p>
+
+<p>
+不过比起这些我更希望标准库能尽快更新泛型版本，以后堆代码也能开心一点。就目前来看 1.18 里包含的 golang.org/x/exp 只能算聊胜于无吧，并且也不太可能在生产代码中使用。
+</p>
+</div>
+</section>
