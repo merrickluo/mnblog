@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Image from "next/image";
 import BackHome from "@components/back_home";
 import "../styles/globals.css";
 
@@ -15,20 +16,14 @@ function MyApp({ Component, pageProps }) {
         <main>
           <Component {...pageProps} />
         </main>
-        <footer className="mt-16 w-full flex flex-row items-baseline">
-          <span>Made with</span>
-          <span className="px-1">
-            <a href="https://orgmode.org">Org Mode</a>
-          </span>
-          <span>,</span>
-          <span className="px-1">
-            <a href="https://tailwindcss.com">TailwindCSS</a>
-          </span>
-          <span>&</span>
-          <span className="pl-1">
-            <a href="https://nextjs.org">Next.js</a>
-          </span>
-          <span>.</span>
+        <footer className="mt-16 w-full flex flex-col items-center">
+          <div className="text-xs mb-2 flex">
+            <p>Copyright &copy; All original content is licensed under&nbsp;</p>
+            <a href="https://creativecommons.org/licenses/by-sa/4.0/">
+              CC BY-SA 4.0
+            </a>
+          </div>
+          <Image width="16" height="16" src="/favicon.png" alt="Icon" />
         </footer>
       </div>
     </>
