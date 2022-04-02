@@ -8,7 +8,7 @@ function MyApp({ Component, pageProps }) {
   return (
     <>
       <Head>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.png?v=2" />
       </Head>
       <div className="w-full p-6 md:w-2/3 md:px-0 md:mx-auto xl:w-2/5">
         {getHeader()}
