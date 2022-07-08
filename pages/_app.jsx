@@ -9,7 +9,7 @@ function MyApp({ Component, pageProps }) {
   return (
     <>
       <Head>
-        <link rel="icon" href="/favicon.png?v=2" />
+        <link rel="icon" href="/favicon.svg?v=2" />
       </Head>
       <div className="w-full p-6 md:w-2/3 md:px-0 md:mx-auto xl:w-2/5">
         {getHeader()}
@@ -23,7 +23,7 @@ function MyApp({ Component, pageProps }) {
               CC BY-SA 4.0
             </a>
           </div>
-          <Image width="16" height="16" src="/favicon.png" alt="Icon" />
+          <Image width="16" height="16" src="/favicon.svg" alt="Icon" />
         </footer>
       </div>
     </>
