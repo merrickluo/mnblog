@@ -6,7 +6,7 @@ import { getSortedPostsData } from "@lib/posts";
 export function getStaticProps() {
   return {
     props: {
-      posts: getSortedPostsData().slice(0, 5),
+      posts: getSortedPostsData().slice(0, 13),
     },
   };
 }
