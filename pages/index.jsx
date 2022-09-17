@@ -28,7 +28,10 @@ export default function Home({ posts }) {
           <span>
             <a href="https://github.com/hlissner/doom-emacs"> doom-emacs</a>
           </span>
-          <span>. I also use gentoo(BTW) with i3.</span>
+          <span>
+            . I also use gentoo with{" "}
+            <a href="https://awesomewm.org/">awesomewm</a> btw.
+          </span>
         </p>
       </section>
       <section>
