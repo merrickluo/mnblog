@@ -7,8 +7,8 @@
    viewBox="0 0 512 512"
    version="1.1"
    id="svg5"
-   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
-   sodipodi:docname="faicon.svg"
+   inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+   sodipodi:docname="favicon.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,15 +23,17 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="px"
      showgrid="false"
-     inkscape:zoom="0.21044922"
-     inkscape:cx="-1040.6311"
-     inkscape:cy="194.82135"
+     inkscape:zoom="0.59524028"
+     inkscape:cx="52.079809"
+     inkscape:cy="403.19852"
      inkscape:window-width="1920"
      inkscape:window-height="1044"
      inkscape:window-x="1920"
      inkscape:window-y="36"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer2" />
+     inkscape:current-layer="layer2"
+     inkscape:showpageshadow="2"
+     inkscape:deskcolor="#d1d1d1" />
   <defs
      id="defs2">
     <rect
@@ -47,10 +49,10 @@
      id="layer1">
     <circle
        id="path31"
-       cx="261.58527"
-       cy="247.96651"
-       r="180"
-       style="fill:#5e81ac;fill-opacity:1" />
+       cx="260"
+       cy="260"
+       style="fill:#5e81ac;fill-opacity:1;stroke-width:1.33333"
+       r="240" />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -62,13 +64,14 @@
        style="fill:black;fill-opacity:1;stroke:none;font-family:sans-serif;font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;letter-spacing:0px;word-spacing:0px;white-space:pre;shape-inside:url(#rect4545)" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:240px;line-height:1.25;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;letter-spacing:0px;word-spacing:0px;fill:#eceff4;fill-opacity:1;stroke:none"
-       x="141.19142"
-       y="338.0715"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:293.333px;line-height:1.25;font-family:Comfortaa;-inkscape-font-specification:Comfortaa;letter-spacing:0px;word-spacing:0px;fill:#eceff4;fill-opacity:1;stroke:none"
+       x="117.97334"
+       y="370.55975"
        id="text6971"><tspan
          sodipodi:role="line"
          id="tspan6969"
-         x="141.19142"
-         y="338.0715">13</tspan></text>
+         x="117.97334"
+         y="370.55975"
+         style="font-size:293.333px">13</tspan></text>
   </g>
 </svg>
