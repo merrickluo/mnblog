@@ -1,0 +1,116 @@
+---
+title: "notmuch is easy"
+author: A.I.
+category: emacs email
+language: en
+date: 2022-09-24
+description: |
+  * EmailI don't have an email workflow, I just use it for tracking news or receiving notifications. I've been using mbsync & mu4e for almost 2 years, never got to learn any of the "advanced" features, 
+---
+
+<section id="outline-container-orgf03216c" class="outline-2">
+<h2 id="orgf03216c">Email</h2>
+<div class="outline-text-2" id="text-orgf03216c">
+<p>
+I don&rsquo;t have an email workflow, I just use it for tracking news or receiving notifications. I&rsquo;ve been using mbsync &amp; mu4e for almost 2 years, never got to learn any of the &ldquo;advanced&rdquo; features, only read &amp; archive.
+</p>
+
+<p>
+I also subscribed to the emacs-devel mail list, which basically made the Zoho mail web UI (or any other web mail UI) unusable. I don&rsquo;t chase all the threads too often, but I just feel happy to see emacs development is so active, xD.
+</p>
+</div>
+</section>
+
+<section id="outline-container-org3615cda" class="outline-2">
+<h2 id="org3615cda">mu4e</h2>
+<div class="outline-text-2" id="text-org3615cda">
+<p>
+After messing around my own emacs config for quite some time, I&rsquo;m now settled with <a href="https://github.com/doomemacs/doomemacs">doom emacs</a>, it provides a nice-looking mu4e integration, that&rsquo;s where I start to use it. I&rsquo;m not entirely happy with it, I had to write long queries to filter out the mailing list emails in the bookmarks setting, but as I said I&rsquo;m not a heavy email user, so I just live with it.
+</p>
+</div>
+</section>
+
+<section id="outline-container-org1dd05a5" class="outline-2">
+<h2 id="org1dd05a5">notmuch</h2>
+<div class="outline-text-2" id="text-org1dd05a5">
+<p>
+I know about notmuch a long time ago, even before I tried to use mu4e, I remember this cuz its logo in the <code>notmuch-hello</code> buffer is so memorably, but obviously, I didn&rsquo;t stick to it for long.
+I&rsquo;m just walking through some old <a href="https://sachachua.com/blog/category/emacs-news/">emacs news</a> as usual yesterday, and opened this <a href="https://irreal.org/blog/?p=9697">link</a> and then this <a href="https://www.youtube.com/watch?v=g7iF11qamh8">video</a> by Protesilaos Stavrou.
+</p>
+
+<p>
+After I finished the video (well, while I&rsquo;m finishing it), I started trying it out, the ability to search quickly with tags and add tags on the fly while reading emails attracted me. Luckily I already have all my emails on my maildir with mbsync.
+</p>
+
+<p>
+So I enabled the <code>:email notmuch</code> and disable <code>:email mu4e</code> in doom. I can feel immediately that this module is not well maintained like the <code>mu4e</code> one, e.g., it opens up a <code>*notmuch*</code> workspace, but the <code>*mu4e-hello*</code> buffer is just a popup to the left, and the workspace remains when I closed the buffer.
+</p>
+
+<p>
+The dashboard is just as I remembered with the balance logo, so far the experience is just like the last time I tried, until I learned the real magic, <a href="https://notmuchmail.org/initial_tagging/">initial tagging</a>.
+</p>
+
+<p>
+The one on notmuch&rsquo;s website is helpful but not as clear as in Prot&rsquo;s video, anyway I basically copied his hook script from his video and did some manual tagging like tag all email in the archive folder with <code>archive</code>, and now I&rsquo;m getting a much cleaner email view, and way easier to configure as well.
+</p>
+
+<div class="org-src-container">
+<label class="org-src-name"><span class="listing-number">Listing 1: </span>notmuch hook: Maildir/.notmuch/hooks/post-new</label><pre class="src src-bash"><span style="color: #8b94a5;">#</span><span style="color: #8b94a5;">!/usr/bin/</span><span style="color: #3B6EA8;">env</span><span style="color: #8b94a5;"> bash</span>
+notmuch tag -unread -new -- tag:replied
+notmuch tag +inbox +unread -new -- tag:new
+
+notmuch tag -new -unread +sent -- <span style="color: #4F894C;">'(from:"*@luois.me* not to:"*@luois.me*)'</span>
+
+notmuch tag -inbox +list +emacs-devel -- from:emacs-devel@gnu.org or to:emacs-devel@gnu.org or subject:<span style="color: #3B6EA8;">[</span>emacs-devel<span style="color: #3B6EA8;">]</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<label class="org-src-name"><span class="listing-number">Listing 2: </span>emacs configuration for notmuch .config/doom/config.el</label><pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">after!</span> notmuch
+  <span style="color: #97365B;">(</span><span style="color: #29838D;">set-popup-rule!</span> <span style="color: #4F894C;">"^\\*notmuch"</span> <span style="color: #29838D;">:ignore</span> t<span style="color: #97365B;">)</span>
+
+  <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">setq</span> <span style="color: #842879;">notmuch-saved-searches</span>
+        <span style="color: #3B6EA8;">'</span><span style="color: #4F894C;">(</span><span style="color: #842879;">(</span><span style="color: #29838D;">:name</span> <span style="color: #4F894C;">"inbox"</span> <span style="color: #29838D;">:query</span> <span style="color: #4F894C;">"tag:inbox not tag:trash"</span> <span style="color: #29838D;">:key</span> <span style="color: #4F894C;">"i"</span><span style="color: #842879;">)</span>
+          <span style="color: #842879;">(</span><span style="color: #29838D;">:name</span> <span style="color: #4F894C;">"todo"</span> <span style="color: #29838D;">:query</span> <span style="color: #4F894C;">"tag:todo"</span> <span style="color: #29838D;">:key</span> <span style="color: #4F894C;">"t"</span><span style="color: #842879;">)</span>
+          <span style="color: #842879;">(</span><span style="color: #29838D;">:name</span> <span style="color: #4F894C;">"flagged"</span> <span style="color: #29838D;">:query</span> <span style="color: #4F894C;">"tag:flagged"</span> <span style="color: #29838D;">:key</span> <span style="color: #4F894C;">"f"</span><span style="color: #842879;">)</span>
+          <span style="color: #842879;">(</span><span style="color: #29838D;">:name</span> <span style="color: #4F894C;">"sent"</span> <span style="color: #29838D;">:query</span> <span style="color: #4F894C;">"tag:sent"</span> <span style="color: #29838D;">:key</span> <span style="color: #4F894C;">"s"</span><span style="color: #842879;">)</span>
+          <span style="color: #842879;">(</span><span style="color: #29838D;">:name</span> <span style="color: #4F894C;">"drafts"</span> <span style="color: #29838D;">:query</span> <span style="color: #4F894C;">"tag:draft"</span> <span style="color: #29838D;">:key</span> <span style="color: #4F894C;">"d"</span><span style="color: #842879;">)</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span>
+
+  <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">setq</span> <span style="color: #842879;">+notmuch-mail-folder</span> <span style="color: #4F894C;">"~/Maildir"</span>
+        <span style="color: #842879;">+notmuch-sync-backend</span> <span style="color: #3B6EA8;">'</span><span style="color: #9A7500;">mbsync</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+</div>
+</section>
+
+<section id="outline-container-orge49db99" class="outline-2">
+<h2 id="orge49db99">doom :email notmuch</h2>
+<div class="outline-text-2" id="text-orge49db99">
+<p>
+As I mentioned, the notmuch module in doom emacs is not quite as good as the mu4e one, but I&rsquo;m planning to improve it myself a little bit, port some of the features from the mu4e module, like the dedicated workspace thing:
+</p>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">defvar</span> <span style="color: #842879;">+notmuch--old-wconf</span> nil<span style="color: #3B6EA8;">)</span>
+
+<span style="color: #3B6EA8;">(</span><span style="color: #97365B;">add-hook</span> <span style="color: #3B6EA8;">'</span><span style="color: #842879;">notmuch-hello-mode-hook</span> <span style="color: #3B6EA8;">#'</span><span style="color: #9A7500;">+notmuch-init-h</span><span style="color: #3B6EA8;">)</span>
+
+<span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">defun</span> <span style="color: #29838D;">+notmuch-init-h</span> <span style="color: #97365B;">()</span>
+  <span style="color: #97365B;">(</span><span style="color: #97365B;">add-hook</span> <span style="color: #3B6EA8;">'</span><span style="color: #842879;">kill-buffer-hook</span> <span style="color: #3B6EA8;">#'</span><span style="color: #9A7500;">+notmuch-kill-notmuch-h</span> nil t<span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+
+<span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">defun</span> <span style="color: #29838D;">+notmuch-kill-notmuch-h</span> <span style="color: #97365B;">()</span>
+  <span style="color: #8b94a5;">;; </span><span style="color: #8b94a5;">(prolusion-mail-hide)</span>
+  <span style="color: #97365B;">(</span><span style="color: #3B6EA8;">cond</span>
+   <span style="color: #4F894C;">(</span><span style="color: #842879;">(</span><span style="color: #3B6EA8;">and</span> <span style="color: #3B6EA8;">(</span><span style="color: #3B6EA8;">modulep!</span> <span style="color: #29838D;">:ui</span> workspaces<span style="color: #3B6EA8;">)</span> <span style="color: #3B6EA8;">(</span><span style="color: #29838D;">+workspace-exists-p</span> <span style="color: #842879;">+notmuch-workspace-name</span><span style="color: #3B6EA8;">)</span><span style="color: #842879;">)</span>
+    <span style="color: #842879;">(</span><span style="color: #29838D;">+workspace/delete</span> <span style="color: #842879;">+notmuch-workspace-name</span><span style="color: #842879;">)</span><span style="color: #4F894C;">)</span>
+
+   <span style="color: #4F894C;">(</span><span style="color: #842879;">+notmuch--old-wconf</span>
+    <span style="color: #842879;">(</span><span style="color: #97365B;">set-window-configuration</span> <span style="color: #842879;">+notmuch--old-wconf</span><span style="color: #842879;">)</span>
+    <span style="color: #842879;">(</span><span style="color: #3B6EA8;">setq</span> <span style="color: #842879;">+notmuch--old-wconf</span> nil<span style="color: #842879;">)</span><span style="color: #4F894C;">)</span><span style="color: #97365B;">)</span><span style="color: #3B6EA8;">)</span>
+</pre>
+</div>
+
+<p>
+I&rsquo;m happy I took 30min to watch the video, email never felt so easy to me, maybe I can have an email workflow now, let&rsquo;s see.
+</p>
+</div>
+</section>
