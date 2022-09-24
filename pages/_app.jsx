@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Image from "next/image";
 import BackHome from "@components/back_home";
 import "../styles/globals.css";
 
@@ -23,7 +22,7 @@ function MyApp({ Component, pageProps }) {
               CC BY-SA 4.0
             </a>
           </div>
-          <Image width="16" height="16" src="/favicon.svg" alt="Icon" />
+          <img width="16" height="16" src="/favicon.svg" alt="Icon" />
         </footer>
       </div>
     </>
