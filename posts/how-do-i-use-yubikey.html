@@ -1,0 +1,65 @@
+---
+title: "How do I use YubiKey (Updating)"
+author: Merrick Luo
+category: security
+language: en
+date: 2023-02-13
+description: |
+  * The YubiKey offerThanks to [[https://blog.cloudflare.com/making-phishing-defense-seamless-cloudflare-yubico/][Cloudflare]], I got my YubiKey for a really good price. Still trying to setup and use it
+---
+
+<section id="outline-container-org2a1505c" class="outline-2">
+<h2 id="org2a1505c">The YubiKey offer</h2>
+<div class="outline-text-2" id="text-org2a1505c">
+<p>
+Thanks to <a href="https://blog.cloudflare.com/making-phishing-defense-seamless-cloudflare-yubico/">Cloudflare</a>, I got my YubiKey for a really good price. Still trying to setup and use it, starting this post to logging my use cases.
+</p>
+</div>
+</section>
+
+<section id="outline-container-org28d9246" class="outline-2">
+<h2 id="org28d9246">Use for login/sudo</h2>
+<div class="outline-text-2" id="text-org28d9246">
+<p>
+ref: <a href="https://github.com/Yubico/pam-u2f">https://github.com/Yubico/pam-u2f</a>
+</p>
+
+<p>
+There are official <a href="https://www.yubico.com/products/computer-login-tools/">guides</a> on yubico website for how to use yubikey to setup login on windows and macOS, but not for linux.
+</p>
+
+<p>
+Got those steps after some search and reading the project readme.
+</p>
+
+<ol class="org-ol">
+<li>install <code>pam-u2f</code> with package manager</li>
+
+<li>generate key handles and public keys</li>
+</ol>
+<div class="org-src-container">
+<pre class="src src-shell">pamu2fcfg -uusername -P -N
+</pre>
+</div>
+
+<ol class="org-ol">
+<li>edit pam config to use it, adjust the options for your need, my key plugged in the back of my desktop, so I don&rsquo;t want to touch it every time I tries to <code>sudo</code>.</li>
+</ol>
+
+<p>
+:/etc/pam.d/system-auth
+</p>
+<div class="org-src-container">
+<pre class="src src-conf"><span style="color: #005e8b;">auth    sufficient      pam_u2f.so  authfile</span>=/etc/u2f_mappings pinverification=<span style="color: #0000b0;">1</span> userpresence=<span style="color: #0000b0;">0</span>
+</pre>
+</div>
+
+<p>
+On my gentoo system, both <code>/etc/pam.d/sudo</code> and <code>/etc/pam.d/login</code> includes <code>/etc/pam.d/system-auth</code>, so I just need to change this.
+</p>
+
+<ol class="org-ol">
+<li>test with <code>sudo</code> and switch to another tty for login, success! I can finally change my login password to a auto generated string.</li>
+</ol>
+</div>
+</section>
