@@ -1,0 +1,95 @@
+---
+title: "Web Clipping with Org Roam"
+author: Merrick Luo
+category: emacs note
+language: en
+date: 2023-02-23
+description: |
+  * DisclaimerThis post is written with the *help* of chatgpt. What can I say, it writes English waaayy better than me :). I do think it makes the article looks too "formal" to me, but still a quite goo
+---
+
+<section id="outline-container-org5ac82ec" class="outline-2">
+<h2 id="org5ac82ec">Disclaimer</h2>
+<div class="outline-text-2" id="text-org5ac82ec">
+<p>
+This post is written with the <b>help</b> of chatgpt. What can I say, it writes English waaayy better than me :). I do think it makes the article looks too &ldquo;formal&rdquo; to me, but still a quite good experience.
+</p>
+</div>
+</section>
+
+<section id="outline-container-org9ff1a40" class="outline-2">
+<h2 id="org9ff1a40">Introduction</h2>
+<div class="outline-text-2" id="text-org9ff1a40">
+<p>
+Back in the day, there was a popular saying &ldquo;the internet never forgets.&rdquo; Unfortunately, this couldn&rsquo;t be further from the truth. Web pages can disappear or change significantly over time, leaving you with broken links and lost information. That&rsquo;s why it&rsquo;s crucial to have a reliable backup plan for the web pages that matter to you.
+</p>
+
+<p>
+One such solution is Org Roam, an Emacs package that helps you create and organize notes in a hierarchical manner. Additionally, org-web-tools is a package that enables you to save web pages as plain, readable org files. By combining these two packages, you can build a powerful system for organizing and accessing information.
+</p>
+
+<p>
+In this post, we&rsquo;ll explore how to use <a href="https://github.com/alphapapa/org-web-tools">org-web-tools</a>, to clip web pages to your Org Roam notes. With this technique, you can easily save and organize web pages that are important to you, even if they disappear from the internet.
+</p>
+</div>
+</section>
+
+<section id="outline-container-org00b8f7a" class="outline-2">
+<h2 id="org00b8f7a">Web clipping with org capture</h2>
+<div class="outline-text-2" id="text-org00b8f7a">
+<p>
+Org Capture is a powerful tool for quickly creating notes in Emacs. To use it for web clipping, we&rsquo;ll need to install the org-web-tools package. This package allows us to easily insert web pages into our note-taking system.
+</p>
+
+<p>
+Org Roam has builtin org protocol support, which includes two types of protocols. For web clipping, we&rsquo;ll be using the <code>roam-ref</code> protocol to preserve the link as a &ldquo;ref&rdquo;, you can find more information about this in the <a href="https://www.orgroam.com/manual.html#org_002droam_002dprotocol">org roam manual</a>.
+</p>
+
+<p>
+Define a capture template for web clips:
+</p>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #000000;">(</span><span style="color: #531ab6; font-weight: bold;">setq</span> org-roam-capture-ref-templates
+        <span style="color: #531ab6; font-weight: bold;">'</span><span style="color: #dd22dd;">(</span><span style="color: #008899;">(</span><span style="color: #3548cf;">"w"</span> <span style="color: #3548cf;">"ref"</span> plain <span style="color: #3548cf;">"%(org-web-tools--url-as-readable-org \"${ref}\")"</span>
+           <span style="color: #8f0075; font-weight: bold;">:target</span> <span style="color: #972500;">(</span>file+head <span style="color: #3548cf;">"clips/${slug}.org"</span> <span style="color: #3548cf;">"#+title: ${title}\n"</span><span style="color: #972500;">)</span>
+           <span style="color: #8f0075; font-weight: bold;">:unnarrowed</span> t<span style="color: #008899;">)</span><span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
+</pre>
+</div>
+
+<p>
+However, since the function <code>org-web-tools--url-as-readable-org</code> is not autoloaded, make sure to load the package before capture:
+</p>
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><span style="color: #000000;">(</span><span style="color: #531ab6; font-weight: bold;">use-package!</span> org-web-tools
+  <span style="color: #8f0075; font-weight: bold;">:commands</span> org-web-tools--url-as-readable-org<span style="color: #000000;">)</span>
+</pre>
+</div>
+
+<p>
+As mentioned in my previous <a href="https://merrick.luois.me/posts/roam-capture-workflow-in-doom-emacs">post</a>, I use <a href="https://github.com/tridactyl/tridactyl">tridactyl</a> in Firefox, with the following configuration:
+</p>
+<div class="org-src-container">
+<pre class="src src-vimrc">bind ;<span style="color: #531ab6; font-weight: bold;">r</span> <span style="color: #005e8b;">js</span> javascript:location<span style="color: #0000b0;">.</span>href <span style="color: #0000b0;">=</span> <span style="color: #3548cf;">'org-protocol://roam-ref?template=w&amp;ref='</span> <span style="color: #0000b0;">+</span> <span style="color: #721045;">encodeURIComponent</span>(location<span style="color: #0000b0;">.</span>href) <span style="color: #0000b0;">+</span> <span style="color: #3548cf;">'&amp;title='</span> <span style="color: #0000b0;">+</span> <span style="color: #721045;">encodeURIComponent</span>(document<span style="color: #0000b0;">.</span><span style="color: #005e8b;">title</span>)
+</pre>
+</div>
+
+<p>
+Now I can pressing <code>;r</code> in Firefox would bring up a capture frame. The web page is then converted to a plain readable org format with org-web-tools, although I do need to do some minor cleanup after the capture, such as removing base64 images from the result.
+</p>
+
+<p>
+Overall, this is a highly efficient and streamlined way of clipping web pages and integrating them into my note-taking workflow.
+</p>
+</div>
+</section>
+
+<section id="outline-container-org246c266" class="outline-2">
+<h2 id="org246c266">Screenshot</h2>
+<div class="outline-text-2" id="text-org246c266">
+
+<figure id="orgda8cd85">
+<img src="/images/2023-02-14_22-36_roam-capture.png" alt="2023-02-14_22-36_roam-capture.png">
+
+</figure>
+</div>
+</section>
