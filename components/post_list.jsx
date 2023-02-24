@@ -18,8 +18,10 @@ export default function PostList({ posts }) {
             })}
           </time>
           <div className="flex flex-row items-baseline">
-            <Link href={`/posts/${encodeURIComponent(p.slug)}`}>
-              <a className="text-lg md:ml-12">{p.title}</a>
+            <Link
+              href={`/posts/${encodeURIComponent(p.slug)}`}
+              className="text-lg md:ml-12">
+              {p.title}
             </Link>
             <div className="ml-1 text-xs">
               <Tag>{p.language == "zh" ? "文" : "En"}</Tag>
