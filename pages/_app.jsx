@@ -1,6 +1,12 @@
 import Head from "next/head";
 import BackHome from "@components/back_home";
 import "../styles/globals.css";
+import { Overpass } from "next/font/google";
+
+const sitefont = Overpass({
+  weight: "400",
+  subsets: [],
+});
 
 function MyApp({ Component, pageProps }) {
   const getHeader = Component.getHeader || (() => <BackHome />);
@@ -10,7 +16,9 @@ function MyApp({ Component, pageProps }) {
       <Head>
         <link rel="icon" href="/favicon.svg?v=2" />
       </Head>
-      <div className="w-full p-6 md:w-2/3 md:px-0 md:mx-auto xl:w-2/5">
+      <div
+        className={`${sitefont.className} w-full p-6 md:w-2/3 md:px-0 md:mx-auto xl:w-2/5`}
+      >
         {getHeader()}
         <main>
           <Component {...pageProps} />
