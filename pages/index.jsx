@@ -22,10 +22,10 @@ export default function Home({ posts }) {
       <section className="mb-8">
         <h2 className="text-3xl font-bold mb-2">About</h2>
         <p>
-          Welcome to my personal site, the journal of a simple mind. Here you'll
-          find my musings on various topics, like emacs, linux, and software
-          development. along with occasional rants and raves. Thanks for
-          stopping by!
+          Welcome to my personal site, the journal of a simple mind. Here
+          you&apos;ll find my musings on various topics, like emacs, linux, and
+          software development. along with occasional rants and raves. Thanks
+          for stopping by!
         </p>
       </section>
       <section>

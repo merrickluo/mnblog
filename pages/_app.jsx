@@ -1,7 +1,8 @@
 import Head from "next/head";
+import { Overpass } from "next/font/google";
+import Image from "next/image";
 import BackHome from "@components/back_home";
 import "../styles/globals.css";
-import { Overpass } from "next/font/google";
 
 const sitefont = Overpass({
   weight: "400",
@@ -30,7 +31,7 @@ function MyApp({ Component, pageProps }) {
               CC BY-SA 4.0
             </a>
           </div>
-          <img width="16" height="16" src="/favicon.svg" alt="Icon" />
+          <Image width="16" height="16" src="/favicon.svg" alt="Icon" />
         </footer>
       </div>
     </>
