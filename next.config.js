@@ -2,7 +2,7 @@ module.exports = {
   reactStrictMode: true,
   env: {
     baseUrl: "https://merrick.luois.me",
-    title: "Node 13",
-    description: "Just a random node on the internet.",
+    title: "Merrick's Node",
+    description: "Journal of a Simple Mind.",
   },
 };

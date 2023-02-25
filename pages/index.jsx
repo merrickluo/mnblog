@@ -2,11 +2,12 @@ import Head from "next/head";
 import PostList from "@components/post_list";
 import Navbar from "@components/navbar";
 import { getSortedPostsData } from "@lib/posts";
+import Link from "next/link";
 
 export function getStaticProps() {
   return {
     props: {
-      posts: getSortedPostsData().slice(0, 13),
+      posts: getSortedPostsData().slice(0, 8),
     },
   };
 }
@@ -21,23 +22,21 @@ export default function Home({ posts }) {
       <section className="mb-8">
         <h2 className="text-3xl font-bold mb-2">About</h2>
         <p>
-          <span>
-            This is A.I.&#39;s personal site. I post some low quality blog posts
-            here. I use emacs with
-          </span>
-          <span>
-            <a href="https://github.com/hlissner/doom-emacs"> doom-emacs</a>
-          </span>
-          <span>
-            . I also use gentoo with{" "}
-            <a href="https://awesomewm.org/">awesomewm</a> btw.
-          </span>
+          Welcome to my personal site, the journal of a simple mind. Here you'll
+          find my musings on various topics, like emacs, linux, and software
+          development. along with occasional rants and raves. Thanks for
+          stopping by!
         </p>
       </section>
       <section>
         <h2 className="text-3xl font-bold mb-8">Recent Posts</h2>
         <PostList posts={posts} />
       </section>
+      <div className="w-full flex text-lg">
+        <Link href="/posts" className="ml-auto mr-8">
+          {"More>>"}
+        </Link>
+      </div>
     </>
   );
 }
