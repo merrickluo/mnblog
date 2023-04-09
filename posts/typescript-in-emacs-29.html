@@ -1,0 +1,151 @@
+---
+title: "Typescript/TSX in (Doom) Emacs 29+"
+author: Merrick Luo
+category: emacs typescript
+language: en
+date: 2023-04-09
+description: |
+  * IntroductionI have a complicated relationship with TypeScript. I don't particularly like it, but with the current trend of front-end development, it's hard to avoid.To work with it in Emacs, I've be
+---
+
+<section id="outline-container-orgd700c99" class="outline-2">
+<h2 id="orgd700c99">Introduction</h2>
+<div class="outline-text-2" id="text-orgd700c99">
+<p>
+I have a complicated relationship with TypeScript. I don&rsquo;t particularly like it, but with the current trend of front-end development, it&rsquo;s hard to avoid.
+</p>
+
+<p>
+To work with it in Emacs, I&rsquo;ve been using the &ldquo;hacks&rdquo; I mentioned in my previous post <a href="https://merrick.luois.me/posts/better-tsx-support-in-doom-emacs">Better TSX support w/ Tree-sitter in Doom Emacs</a>. However, with the coming Emacs 29 release, this all changes. It has built-in support for Tree-sitter, including TypeScript/TSX modes, so I no longer need to use those hacks.
+</p>
+</div>
+</section>
+
+<section id="outline-container-org0b49d17" class="outline-2">
+<h2 id="org0b49d17">Tree-sitter in Emacs 29</h2>
+<div class="outline-text-2" id="text-org0b49d17">
+<p>
+Tree-sitter is a big deal in text editors lately. And now even Emacs is getting in on the action.
+</p>
+
+<p>
+In the Emacs 29 release branch, we not only have built-in Tree-sitter support, but also many Tree-sitter powered major modes, including TypeScript/TSX.
+</p>
+
+<p>
+These new major modes are developed by the maintainers of the <code>typescript-mode</code> package, who have <a href="https://github.com/emacs-typescript/typescript.el#a-short-note-on-development-halt">stopped maintaining</a> the old typescript-mode package. As a result, we can expect the new Tree-sitter based major mode to be more stable and feature-rich. IMO, it&rsquo;s already better than the old typescript-mode package, and it&rsquo;s the best new Tree-sitter based major mode in Emacs 29.
+</p>
+</div>
+</section>
+
+<section id="outline-container-orgb4e0e44" class="outline-2">
+<h2 id="orgb4e0e44">Start using it now</h2>
+<div class="outline-text-2" id="text-orgb4e0e44">
+</div>
+<div id="outline-container-org13e1762" class="outline-3">
+<h3 id="org13e1762">Install Emacs 29</h3>
+<div class="outline-text-3" id="text-org13e1762">
+<p>
+Firstly, ensure that you are using Emacs 29. If you are on Gentoo, simply sync the emacs-29 version and select it with eselect. Don&rsquo;t forget to enable the tree-sitter USE flag.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #005f5f; font-weight: bold;">echo</span> <span style="color: #3548cf;">'&gt;=app-editors/emacs-29.0.9999 tree-sitter'</span> | <span style="color: #005f5f; font-weight: bold;">sudo</span> tee -a /etc/portage/package.use/emacs
+
+<span style="color: #005f5f; font-weight: bold;">sudo</span> emerge -av =emacs-29.0.9999-r1
+<span style="color: #005f5f; font-weight: bold;">sudo</span> eselect emacs set emacs-29-vcs
+</pre>
+</div>
+
+<p>
+I&rsquo;m sure you can find a way to install it on your system too.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3163086" class="outline-3">
+<h3 id="org3163086">Prepare tree-sitter libraries</h3>
+<div class="outline-text-3" id="text-org3163086">
+<p>
+Although the built-in support is available, there are still some hassles to get it working properly. You need to install the grammar files for the major modes you want to use and enable the tree-sitter-based major modes in your configuration.
+</p>
+
+<p>
+<a href="https://github.com/renzmann/treesit-auto">treesit-auto</a> is a package to minimizes the hassle, but since I only want to use the TypeScript/TSX major modes, I prefer to do it manually.
+</p>
+
+<div class="org-src-container">
+<label class="org-src-name"><span class="listing-number">Listing 1: </span>in config.el</label><pre class="src src-emacs-lisp"><span style="color: #000000;">(</span><span style="color: #531ab6; font-weight: bold;">after!</span> treesit
+  <span style="color: #dd22dd;">(</span><span style="color: #531ab6; font-weight: bold;">setq</span> <span style="color: #005e8b;">treesit-language-source-alist</span>
+        <span style="color: #531ab6; font-weight: bold;">'</span><span style="color: #008899;">(</span><span style="color: #972500;">(</span>typescript <span style="color: #3548cf;">"https://github.com/tree-sitter/tree-sitter-typescript"</span> <span style="color: #3548cf;">"master"</span> <span style="color: #3548cf;">"typescript/src"</span> nil nil<span style="color: #972500;">)</span>
+          <span style="color: #972500;">(</span>tsx <span style="color: #3548cf;">"https://github.com/tree-sitter/tree-sitter-typescript"</span> <span style="color: #3548cf;">"master"</span> <span style="color: #3548cf;">"tsx/src"</span> nil nil<span style="color: #972500;">)</span><span style="color: #008899;">)</span><span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
+</pre>
+</div>
+
+<p>
+After evaluating the code above, run <code>M-x treesit-install-language-grammar</code>, and select <code>typescript</code> and <code>tsx</code>, This convenient function is provided by the built-in <code>treesit</code> package. It will download and build the grammar files for you, and install them in the correct place.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org6b292bc" class="outline-3">
+<h3 id="org6b292bc">Use the new major modes</h3>
+<div class="outline-text-3" id="text-org6b292bc">
+<p>
+Now, you can activate the new major modes in your config, and you are good to go, you can skip the lsp part if you don&rsquo;t use lsp of course.
+</p>
+
+<div class="org-src-container">
+<label class="org-src-name"><span class="listing-number">Listing 2: </span>in config.el</label><pre class="src src-emacs-lisp"><span style="color: #000000;">(</span><span style="color: #531ab6; font-weight: bold;">use-package</span> typescript-ts-mode
+  <span style="color: #8f0075; font-weight: bold;">:mode</span> <span style="color: #dd22dd;">(</span><span style="color: #008899;">(</span><span style="color: #3548cf;">"\\.ts\\'"</span> . typescript-ts-mode<span style="color: #008899;">)</span>
+         <span style="color: #008899;">(</span><span style="color: #3548cf;">"\\.tsx\\'"</span> . tsx-ts-mode<span style="color: #008899;">)</span><span style="color: #dd22dd;">)</span>
+  <span style="color: #8f0075; font-weight: bold;">:config</span>
+  <span style="color: #dd22dd;">(</span><span style="color: #531ab6; font-weight: bold;">add-hook!</span> <span style="color: #531ab6; font-weight: bold;">'</span><span style="color: #008899;">(</span>typescript-ts-mode-hook tsx-ts-mode-hook<span style="color: #008899;">)</span> <span style="color: #531ab6; font-weight: bold;">#'</span><span style="color: #0000b0;">lsp!</span><span style="color: #dd22dd;">)</span><span style="color: #000000;">)</span>
+</pre>
+</div>
+
+<p>
+optionally, you can disable the <code>typescript-mode</code> package.
+</p>
+<div class="org-src-container">
+<label class="org-src-name"><span class="listing-number">Listing 3: </span>in packages.el</label><pre class="src src-emacs-lisp"><span style="color: #000000;">(</span><span style="color: #531ab6; font-weight: bold;">package!</span> typescript-mode <span style="color: #8f0075; font-weight: bold;">:disable</span> t<span style="color: #000000;">)</span>
+</pre>
+</div>
+</div>
+</div>
+</section>
+
+<section id="outline-container-org98a0d3d" class="outline-2">
+<h2 id="org98a0d3d">&ldquo;Electric Pair&rdquo;</h2>
+<div class="outline-text-2" id="text-org98a0d3d">
+<p>
+The new major modes works great, but there is this one thing I miss from the <code>rjsx-mode</code>: the &ldquo;electric pair&rdquo; feature, which automatically insert the closing tag when you type the opening tag.
+</p>
+
+<p>
+I tried to do the same hack as I did in the previous post, but it doesn&rsquo;t work, since <code>rjsx-minor-mode</code> relies on <code>js2-mode</code> to build the syntax tree, and I don&rsquo;t think it works well with the Typescript syntax.
+</p>
+
+<p>
+I really hope I can get this feature in the new <code>typescript-tsx-mode</code>, maybe even trying to implement it myself, let&rsquo;s see.
+</p>
+</div>
+</section>
+
+<section id="outline-container-orgb053acf" class="outline-2">
+<h2 id="orgb053acf">Non Doom Emacs</h2>
+<div class="outline-text-2" id="text-orgb053acf">
+<p>
+This post discusses how to use it in Doom Emacs, but it doesn&rsquo;t use any Doom-specific features or packages other than the configuration macros, so it should be easy to port to vanilla Emacs.
+</p>
+</div>
+</section>
+
+<section id="outline-container-org36403f2" class="outline-2">
+<h2 id="org36403f2">Conclusion</h2>
+<div class="outline-text-2" id="text-org36403f2">
+<p>
+As you can see, this is way easier to work with typescript/tsx in emacs 29 now, and all the hack config I mentioned in my previous post is no longer needed, and I&rsquo;m happy to delete them.
+</p>
+</div>
+</section>
